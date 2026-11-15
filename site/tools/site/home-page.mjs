@@ -72,7 +72,6 @@ const beatScene = (beat, sentences, number, ctx) => html`<section class="scene s
     <div class="scene__inner beat${beat.interactive ? ' beat--wide' : ''}">
       <div class="beat__head">
         <div class="beat__title">
-          <div><span class="eyebrow">${number} · ${STAGE[beat.id] ?? beat.heading}</span></div>
           <h2 id="beat-${beat.id}-title">${beat.heading}</h2>
           ${tagsFor(sentences)}
         </div>
@@ -89,7 +88,6 @@ const beatScene = (beat, sentences, number, ctx) => html`<section class="scene s
 const openingScene = (story) => html`<section class="scene" id="hook" aria-labelledby="hook-title">
     <div class="scene__inner hook hook--hero">
       <div class="hook__text">
-        <div><span class="eyebrow">Flame in Freefall</span></div>
         <h1 id="hook-title">${story.title}</h1>
         <p class="lead hook__line">${story.dek}</p>
         <div class="actions">

@@ -67,7 +67,6 @@ const filterBar = (shelf) => {
 export const libraryScene = (shelf, beat, index, cites, link, prefix = 'stories/') => html`<section class="scene" id="library" aria-labelledby="library-title">
     <div class="scene__inner">
       <div class="scene__head">
-        <div><span class="eyebrow">${index ? `${index} · ` : ''}The shelf</span></div>
         <h2 id="library-title">${beat.heading}</h2>
         <p class="lead">${beat.sentences.map((sentence) => citedSentence(sentence, cites))}</p>
         ${link}
@@ -149,7 +148,6 @@ const featuredTile = (entry, image, alt) => {
 export const featuredScene = (shelf, beat, index, cites) => html`<section class="scene" id="library" aria-labelledby="library-title">
     <div class="scene__inner">
       <div class="scene__head">
-        <div><span class="eyebrow">${index} · Stories</span></div>
         <h2 id="library-title">${beat.heading}</h2>
         <p class="lead">${beat.sentences.map((sentence) => citedSentence(sentence, cites))}</p>
       </div>
