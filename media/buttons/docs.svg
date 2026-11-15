@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="260" height="60" viewBox="0 0 260 60" role="img" aria-label="Documentation">
+  <rect width="260" height="60" rx="14" fill="#1f3a8a"/>
+  <path d="M26 17h14l8 8v18H26z" fill="#ffffff"/><path d="M40 17v8h8" fill="#9fb4ee"/><path d="M31 31h12M31 36h12" stroke="#1f3a8a" stroke-width="2.5"/>
+  <text x="62" y="39" fill="#ffffff" font-family="-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="22" font-weight="700">Documentation</text>
+</svg>

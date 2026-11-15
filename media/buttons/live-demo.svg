@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="250" height="60" viewBox="0 0 250 60" role="img" aria-label="Live Demo">
+  <rect width="250" height="60" rx="14" fill="#d9480f"/>
+  <circle cx="36" cy="30" r="8" fill="#ffffff"/><circle cx="36" cy="30" r="13" fill="none" stroke="#ffffff" stroke-opacity=".5" stroke-width="3"/>
+  <text x="64" y="39" fill="#ffffff" font-family="-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="22" font-weight="700">Live Demo</text>
+</svg>

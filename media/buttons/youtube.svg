@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="310" height="60" viewBox="0 0 310 60" role="img" aria-label="Watch on YouTube">
+  <rect width="310" height="60" rx="14" fill="#c4141c"/>
+  <path d="M28 18 L28 42 L48 30 Z" fill="#ffffff"/>
+  <text x="60" y="39" fill="#ffffff" font-family="-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="22" font-weight="700">Watch on YouTube</text>
+</svg>

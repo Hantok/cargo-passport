@@ -4,6 +4,12 @@
 
 ### Know what flies.
 
+<p align="center">
+  <a href="https://nasa-fire-safety.qwadratic.me/"><img src="media/buttons/live-demo.svg" alt="Live Demo" height="60"></a>&nbsp;
+  <a href="https://youtu.be/5JOlN18c3TY"><img src="media/buttons/youtube.svg" alt="Watch on YouTube" height="60"></a>&nbsp;
+  <a href="https://nasa-fire-safety.qwadratic.me/docs"><img src="media/buttons/docs.svg" alt="Documentation" height="60"></a>
+</p>
+
 **A passport for space cargo: what it's made of, which NASA fire experiments apply where it's going, and what is still untested.**
 
 NASA Space Apps Challenge 2026 · **Flame in Freefall** · Vienna 🇦🇹 · Team **Five-Body Problem**
@@ -18,9 +24,9 @@ NASA Space Apps Challenge 2026 · **Flame in Freefall** · Vienna 🇦🇹 · Te
 
 <a href="https://youtu.be/5JOlN18c3TY"><img src="media/video-poster.jpg" alt="Play the Cargo Passport video on YouTube" width="860"></a>
 
-▶️ **[Watch on YouTube](https://youtu.be/5JOlN18c3TY)** · [MP4 in this repo](media/cargo-passport-video.mp4) (30 s, English subtitles)
+[MP4 in this repo](media/cargo-passport-video.mp4) (30 s, English subtitles)
 
-🌐 **[Live demo: cargo.qwadratic.me](https://cargo.qwadratic.me)** · [API docs](https://cargo.qwadratic.me/docs) · 🖥️ [Presentation](presentation/) (4 slides with the video: open `presentation/index.html`, arrow keys to move, F for full screen)
+🖥️ [Presentation](presentation/) (4 slides with the video: open `presentation/index.html`, arrow keys to move, F for full screen)
 
 ---
 
