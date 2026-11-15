@@ -46,7 +46,7 @@ export function page({ title, description, base, top, skipTo, railItems, body, s
 <meta name="si-disclosure" content="${SI_DISCLOSURE}">
 <meta name="theme-color" content="#0b1628">
 <link rel="icon" href="${FAVICON}">
-${[...STYLES, ...styles].map((name) => html`<link rel="stylesheet" href="${base}assets/css/${name}.css?v=20261115c">\n`)}<script type="module" src="${base}vendor/ui-sdk/web.js"></script>
+${[...STYLES, ...styles].map((name) => html`<link rel="stylesheet" href="${base}assets/css/${name}.css?v=20261115d">\n`)}<script type="module" src="${base}vendor/ui-sdk/web.js"></script>
 ${[...SCRIPTS, ...scripts].map((name) => html`<script type="module" src="${base}assets/js/${name}.js"></script>\n`)}</head>
 <body>
 <a class="skip" href="#${skipTo}">Skip to the content</a>

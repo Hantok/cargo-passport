@@ -3,7 +3,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export const REPO = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-export const PAGES = ['index.html', 'stories/index.html', ...['quiet-fire', 'moon-air', 'battery-orbit', 'cygnus-big-fires'].map((id) => `stories/${id}/index.html`)];
+export const PAGES = ['index.html', 'vehicle/index.html', 'stories/index.html', ...['quiet-fire', 'moon-air', 'battery-orbit', 'cygnus-big-fires'].map((id) => `stories/${id}/index.html`)];
 
 export const siteRoot = () => resolve(process.env.SITE_ROOT ?? REPO);
 export const evidencePath = () => resolve(process.env.EVIDENCE_FILE ?? `${siteRoot()}/data/evidence.json`);

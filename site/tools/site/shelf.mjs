@@ -144,14 +144,29 @@ const featuredTile = (entry, image, alt) => {
       </li>`;
 };
 
-/** Four tiles of the shelf and a link to all of it. `beat` is the "more" beat of the home story. */
-export const featuredScene = (shelf, beat, index, cites) => html`<section class="scene" id="library" aria-labelledby="library-title">
+const VEHICLE_IMAGE = { image: 'example-vehicle.webp', alt: 'Plan view of a habitat module with cargo items placed in it, from the whole-vehicle example' };
+
+/** The first tile: the worked example of the whole vehicle, which has a page of its own. `beat` is the "fleet" beat of the home story. */
+const exampleTile = (beat, cites) => html`<li class="tile tile--example" data-example="vehicle">
+        <a class="tile__link" href="vehicle/">
+          <img class="tile__img" src="assets/images/${VEHICLE_IMAGE.image}" width="1200" height="539" alt="${VEHICLE_IMAGE.alt}" loading="lazy">
+          <span class="tile__body">
+            <span class="tile__kind mono">Example · Concept</span>
+            <span class="tile__title">${beat.heading}</span>
+            <span class="tile__premise">${beat.sentences.slice(0, 2).map((sentence) => citedSentence(sentence, cites))}</span>
+          </span>
+        </a>
+      </li>`;
+
+/** One section of tiles: the whole-vehicle example first, then four stories of the shelf and a link to all of it. `beat` is the "more" beat of the home story. */
+export const featuredScene = (shelf, beat, index, cites, fleetBeat = null) => html`<section class="scene" id="library" aria-labelledby="library-title">
     <div class="scene__inner">
       <div class="scene__head">
         <h2 id="library-title">${beat.heading}</h2>
         <p class="lead">${beat.sentences.map((sentence) => citedSentence(sentence, cites))}</p>
       </div>
       <ul class="tiles">
+        ${fleetBeat ? exampleTile(fleetBeat, cites) : ''}
         ${FEATURED.filter(({ id }) => shelf.some((entry) => entry.id === id)).map(({ id, image, alt }) => featuredTile(shelf.find((entry) => entry.id === id), image, alt))}
       </ul>
       <div class="actions"><a class="btn" href="stories/">All stories</a></div>
