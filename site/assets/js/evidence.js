@@ -100,6 +100,14 @@ function placeTip(element, point) {
     node.style.maxHeight = `${Math.max(room, 80)}px`;
     node.style.top = below ? `${rect.bottom + gap}px` : `${Math.max(margin, rect.top - gap - Math.min(height, room))}px`;
   }
+  // last guard: whatever side was chosen, the box ends up inside the screen (the marker itself may be at the edge of it)
+  if (node.style.bottom === "auto") {
+    const box = node.getBoundingClientRect();
+    if (box.height > innerHeight - 2 * margin) node.style.maxHeight = `${innerHeight - 2 * margin}px`;
+    const fitted = node.getBoundingClientRect();
+    const top = Math.min(Math.max(margin, fitted.top), innerHeight - fitted.height - margin);
+    node.style.top = `${Math.max(margin, top)}px`;
+  }
 }
 
 function showTip(element, point) {
