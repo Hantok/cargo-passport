@@ -150,7 +150,7 @@ uv run python -m app.ingest.load
 uv run uvicorn serve:app --port 8000
 ```
 
-Open **http://localhost:8000/app/** for the app and http://localhost:8000/docs for the API. "Explain" needs an SI key: set `SI_API_KEY` (Eustella AI, OpenAI-compatible; optional `SI_BASE_URL`, `SI_MODEL`). Without a key, everything else works and Explain says it is unavailable.
+Open **http://localhost:8000/app/** for the app and http://localhost:8000/docs for the API. "Explain" needs an SI key: set `SI_API_KEY` (or `SI_API_KEY_FILE`) for the Anthropic Messages API; optional `SI_BASE_URL`, `SI_MODEL` (default `claude-sonnet-5-5`). Without a key, everything else works and Explain says it is unavailable.
 
 Tests: `uv run pytest -q` in `backend/` (after the load step), and `node frontend/index.test.cjs`. More in [`backend/README.md`](backend/README.md) and [`backend/API.md`](backend/API.md).
 
@@ -180,7 +180,7 @@ Built in Vienna at NASA Space Apps Challenge 2026.
 - **Code and data:** the code, the data-normalisation scripts and the docs were written with SI coding assistants (Claude, Codex) and reviewed and tested by the team. The curated seed files in `backend/seed/` were compiled with SI assistance from the sources in `sources.yaml`; the cargo items are illustrative.
 - **Video and audio:** the narration is synthetic speech (Kokoro-82M TTS via HyperFrames). The visuals, the music and the narration script were produced with SI assistance. The opening line was written by the team. The MP4 metadata carries the same disclosure.
 - **Images:** the images in this README and in the presentation were produced with SI assistance. Every video frame and every SI-generated image carries a visible "SI-assisted" watermark.
-- **In the app:** the "Explain" feature uses an SI model (Eustella AI) to explain the computed evidence comparison with sources. The comparison itself is computed in code from NASA data.
+- **In the app:** the "Explain" feature uses an SI model (Claude by Anthropic) to explain the computed evidence comparison with sources. The comparison itself is computed in code from NASA data.
 - **Idea:** the concept came from the team's brainstorm; SI tools helped organise it and check data feasibility.
 
 ## 📄 License

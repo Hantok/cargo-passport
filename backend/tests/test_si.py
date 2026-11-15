@@ -22,7 +22,7 @@ INPUTS = {
 
 
 def settings(**over):
-    base = dict(database_url="postgresql://x", si_base_url="https://eustella.example/v1", si_api_key=KEY, si_model="m1")
+    base = dict(database_url="postgresql://x", si_base_url="http://shim.test", si_api_key=KEY, si_model="m1", si_api_key_file=None)
     return Settings(**{**base, **over})
 
 
@@ -31,16 +31,26 @@ def configured(monkeypatch):
     monkeypatch.setattr(si, "get_settings", lambda: settings())
 
 
-class FakeClient:
-    def __init__(self, content=None, exc=None):
-        self.content, self.exc, self.calls = content, exc, []
-        self.chat = SimpleNamespace(completions=SimpleNamespace(create=self._create))
+def text_resp(text):
+    return {"content": [{"type": "text", "text": text}], "stop_reason": "end_turn"}
 
-    def _create(self, **kw):
+
+def tool_resp(name, args, id="c1"):
+    return {"content": [{"type": "tool_use", "id": id, "name": name, "input": args}], "stop_reason": "tool_use"}
+
+
+class FakeClient:
+    """Stands in for ClaudeClient: returns scripted responses (dicts) in order; the last one repeats."""
+
+    def __init__(self, content=None, exc=None, *responses):
+        self.responses = [text_resp(content)] if content is not None else list(responses)
+        self.exc, self.calls = exc, []
+
+    def create(self, **kw):
         self.calls.append(kw)
         if self.exc:
             raise self.exc
-        return SimpleNamespace(choices=[SimpleNamespace(message=SimpleNamespace(content=self.content))])
+        return self.responses.pop(0) if len(self.responses) > 1 else self.responses[0]
 
 
 def reply(*sentences):
@@ -62,9 +72,9 @@ def test_happy_path():
     assert out["cited_source_ids"] == ["nasa-std-6001", "psi-bass-1"]
     assert out["model"] == "m1" and len(out["sentences"]) == 2
     call = client.calls[0]
-    assert call["model"] == "m1" and call["response_format"] == {"type": "json_object"}
-    assert call["messages"][0]["role"] == "system" and si.NO_FINDING in call["messages"][0]["content"]
-    assert "psi-bass-1" in call["messages"][1]["content"]
+    assert call["model"] == "m1" and "temperature" not in call and "tools" not in call
+    assert si.NO_FINDING in call["system"]
+    assert call["messages"][0]["role"] == "user" and "psi-bass-1" in call["messages"][0]["content"]
 
 
 def test_hallucinated_source_rejected():
@@ -106,6 +116,86 @@ def test_provider_exception_is_error_without_key():
     assert KEY not in json.dumps(out)
 
 
+def test_key_can_come_from_a_file(monkeypatch, tmp_path):
+    f = tmp_path / "bearer"
+    f.write_text(KEY + "\n")
+    s = settings(si_api_key=None, si_api_key_file=str(f))
+    assert s.si_secret == KEY
+    assert settings(si_api_key=None, si_api_key_file=str(tmp_path / "missing")).si_secret is None
+    monkeypatch.setattr(si, "get_settings", lambda: s)
+    seen = {}
+
+    class Spy(si.ClaudeClient):
+        def create(self, **kw):
+            seen["headers"], seen["url"] = self.headers, self.url
+            return text_resp(reply(("Observed.", ["psi-bass-1"])))
+
+    monkeypatch.setattr(si, "ClaudeClient", Spy)
+    out = si.explain(INPUTS)
+    assert out["status"] == "ok"
+    assert seen["headers"]["x-api-key"] == KEY and seen["url"] == "http://shim.test/v1/messages"
+
+
+def _http(monkeypatch, handler):
+    import httpx
+
+    real = httpx.Client
+
+    def post(url, headers=None, json=None, timeout=None):
+        with real(transport=httpx.MockTransport(handler)) as c:
+            return c.post(url, headers=headers, json=json, timeout=timeout)
+
+    monkeypatch.setattr(si.httpx, "post", post)
+
+
+def test_http_client_sends_messages_request(monkeypatch):
+    import httpx
+
+    seen = {}
+
+    def handler(req):
+        seen["req"], seen["body"] = req, json.loads(req.content)
+        return httpx.Response(200, json=text_resp("hi"))
+
+    _http(monkeypatch, handler)
+    out = si.ClaudeClient("http://shim.test/", KEY).create(model="m1", max_tokens=5, messages=[])
+    assert out["content"][0]["text"] == "hi"
+    assert str(seen["req"].url) == "http://shim.test/v1/messages"
+    assert seen["req"].headers["x-api-key"] == KEY and seen["req"].headers["anthropic-version"]
+
+
+@pytest.mark.parametrize("make, expect", [
+    (lambda httpx: httpx.Response(429, json={"error": {"message": "limit"}}), "HTTP 429"),
+    (lambda httpx: httpx.Response(500, text="boom"), "HTTP 500"),
+    (lambda httpx: httpx.Response(200, text="not json"), "non-JSON"),
+])
+def test_http_failures_become_clear_errors(monkeypatch, make, expect):
+    import httpx
+
+    _http(monkeypatch, lambda req: make(httpx))
+    out = si.explain(INPUTS, si.ClaudeClient("http://shim.test", KEY))
+    assert out["status"] == "error" and expect in out["reason"] and KEY not in out["reason"]
+
+
+def test_timeout_and_unreachable_are_clear_errors(monkeypatch):
+    import httpx
+
+    def timeout(req):
+        raise httpx.ReadTimeout("slow", request=req)
+
+    def refused(req):
+        raise httpx.ConnectError("refused", request=req)
+
+    _http(monkeypatch, timeout)
+    assert "timed out" in si.explain(INPUTS, si.ClaudeClient("http://shim.test", KEY))["reason"]
+    _http(monkeypatch, refused)
+    assert "unreachable" in si.explain(INPUTS, si.ClaudeClient("http://shim.test", KEY))["reason"]
+
+
+def test_no_verdict_words_in_prompt_rules():
+    assert "Do not say the cargo is safe, unsafe, approved or rejected" in si.SYSTEM_PROMPT
+
+
 def test_cache_key_stable_under_ordering():
     reordered = dict(reversed(list(INPUTS.items())))
     assert si.cache_key(INPUTS, "m1") == si.cache_key(reordered, "m1")
@@ -145,24 +235,16 @@ def test_explain_cached_does_not_store_rejected():
     assert out["status"] == "rejected" and session.rows == []
 
 
-class ToolClient:
-    """Returns scripted messages in order: tool calls first, then a final JSON reply."""
-
-    def __init__(self, *messages):
-        self.messages, self.calls = list(messages), []
-        self.chat = SimpleNamespace(completions=SimpleNamespace(create=self._create))
-
-    def _create(self, **kw):
-        self.calls.append(kw)
-        return SimpleNamespace(choices=[SimpleNamespace(message=self.messages.pop(0))])
+def ToolClient(*responses):
+    return FakeClient(None, None, *responses)
 
 
 def tool_call(name, args, id="c1"):
-    return SimpleNamespace(content="", tool_calls=[SimpleNamespace(id=id, function=SimpleNamespace(name=name, arguments=json.dumps(args)))])
+    return tool_resp(name, args, id)
 
 
 def final(text):
-    return SimpleNamespace(content=text, tool_calls=None)
+    return text_resp(text)
 
 
 LOOKUP = {
@@ -176,7 +258,9 @@ def test_tool_records_become_citable():
     out = si.explain(INPUTS, client, tools=[LOOKUP])
     assert out["status"] == "ok" and out["cited_source_ids"] == ["obs-7"]
     assert out["tool_records"][0]["source_id"] == "obs-7"
-    assert client.calls[1]["messages"][-1]["role"] == "tool"
+    assert client.calls[0]["tools"][0]["name"] == "search_observations" and "input_schema" in client.calls[0]["tools"][0]
+    last = client.calls[1]["messages"][-1]
+    assert last["role"] == "user" and last["content"][0]["type"] == "tool_result" and last["content"][0]["tool_use_id"] == "c1"
 
 
 def test_ids_never_returned_are_still_rejected():
@@ -190,7 +274,7 @@ def test_tool_rounds_are_capped_and_last_round_forbids_tools():
     out = si.explain(INPUTS, client, tools=[LOOKUP])
     assert out["status"] == "ok"
     assert len(client.calls) == si.MAX_TOOL_ROUNDS + 1
-    assert "tools" not in client.calls[-1] and client.calls[-1]["response_format"] == {"type": "json_object"}
+    assert client.calls[-1]["tool_choice"] == {"type": "none"} and client.calls[0]["tool_choice"] == {"type": "auto"}
 
 
 def test_bad_tool_arguments_go_back_to_the_model():
@@ -198,7 +282,7 @@ def test_bad_tool_arguments_go_back_to_the_model():
     client = ToolClient(tool_call("search_observations", {"nope": 1}), final(reply(("Flame spread was observed at 21% O2.", ["psi-bass-1"]))))
     out = si.explain(INPUTS, client, tools=[bad])
     assert out["status"] == "ok"
-    assert "error" in json.loads(client.calls[1]["messages"][-1]["content"])
+    assert "error" in json.loads(client.calls[1]["messages"][-1]["content"][0]["content"])
 
 
 def test_prose_after_tools_gets_one_json_retry():
@@ -206,7 +290,8 @@ def test_prose_after_tools_gets_one_json_retry():
                         final(reply(("A test reached 30% O2.", ["obs-7"]))))
     out = si.explain(INPUTS, client, tools=[LOOKUP])
     assert out["status"] == "ok" and len(client.calls) == 3
-    assert client.calls[-1]["response_format"] == {"type": "json_object"} and "tools" not in client.calls[-1]
+    assert client.calls[-1]["tool_choice"] == {"type": "none"}
+    assert client.calls[-1]["messages"][-1]["content"].startswith("Reply now with the required JSON")
 
 
 def test_explain_cached_survives_concurrent_identical_save():
@@ -224,3 +309,23 @@ def test_explain_cached_survives_concurrent_identical_save():
     session = RacingSession()
     out = si.explain_cached(session, INPUTS, FakeClient(reply(("Observed.", ["psi-bass-1"]))))
     assert out["status"] == "ok" and session.rolled_back
+
+
+def test_tool_loop_has_a_total_deadline(monkeypatch):
+    clock = iter([0.0, 0.0, 1000.0, 1000.0, 1000.0])
+    monkeypatch.setattr(si.time, "monotonic", lambda: next(clock))
+    client = ToolClient(tool_call("search_observations", {}), final(reply(("x", ["obs-7"]))))
+    out = si.explain(INPUTS, client, tools=[LOOKUP])
+    assert out["status"] == "error" and "exceeded" in out["reason"]
+
+
+def test_explain_rate_window_slides():
+    from app import api
+
+    api._explain_hits.clear()
+    n = api.EXPLAIN_PER_IP_PER_MINUTE
+    assert all(api._explain_allowed("ip", now=100.0) for _ in range(n))
+    assert not api._explain_allowed("ip", now=130.0)
+    assert api._explain_allowed("ip", now=161.0)  # the first window has passed
+    assert api._explain_allowed("other", now=130.0)
+    api._explain_hits.clear()

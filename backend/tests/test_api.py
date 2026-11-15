@@ -8,6 +8,7 @@ from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
+from app import api
 from app.config import get_settings
 from app.db import get_session
 from app.main import app
@@ -34,6 +35,7 @@ def client():
                 yield s
 
         app.dependency_overrides[get_session] = session_override
+        api._explain_hits.clear()
         yield TestClient(app)
         app.dependency_overrides.clear()
         trans.rollback()
@@ -102,12 +104,23 @@ def test_share_create_view_edit(client):
 
 
 def test_explain_unavailable_without_si_config(client, monkeypatch):
-    for k in ("si_base_url", "si_api_key", "si_model"):
+    for k in ("si_base_url", "si_api_key", "si_api_key_file", "si_model"):
         monkeypatch.setattr(get_settings(), k, None)
     d = client.post("/scenarios/explain", json={"cargo_slug": "portable-science-instrument", "component_index": 0,
                                                 "scenario": SCENARIO_ISS}).json()
     assert d["explanation"]["status"] == "unavailable"
     assert {s["source_id"] for s in d["sources"][:2]} == {"scenario-conditions", "computed-coverage"}
+
+
+def test_explain_is_limited_per_ip(client, monkeypatch):
+    for k in ("si_base_url", "si_api_key", "si_api_key_file", "si_model"):
+        monkeypatch.setattr(get_settings(), k, None)
+    body = {"cargo_slug": "portable-science-instrument", "component_index": 0, "scenario": SCENARIO_ISS}
+    codes = [client.post("/scenarios/explain", json=body, headers={"x-forwarded-for": "9.9.9.9"}).status_code
+             for _ in range(api.EXPLAIN_PER_IP_PER_MINUTE + 1)]
+    assert codes[:-1] == [200] * api.EXPLAIN_PER_IP_PER_MINUTE and codes[-1] == 429
+    other = client.post("/scenarios/explain", json=body, headers={"x-forwarded-for": "8.8.8.8"})
+    assert other.status_code == 200  # another client is not affected
 
 
 def test_export_matches_compare_and_reopens(client):
