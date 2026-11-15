@@ -2,7 +2,6 @@
   /* marks: one quiet line, no badge */
   .beat__mark { margin: var(--space-1) 0 0; font: 400 var(--fs-xs) / 1.5 var(--mono); letter-spacing: 0.02em; color: var(--muted); }
   .tag { font-family: var(--mono); font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; }
-  .tag[data-stage] { padding: 0; border: 0; color: var(--muted); }
   span[data-concept] { text-decoration: underline dotted rgb(197 208 224 / 0.5); text-decoration-thickness: 1px; text-underline-offset: 0.3em; }
   .hook__def { max-width: 36rem; margin-top: var(--space-3); color: var(--fg); font-size: var(--fs-md); }
   .hook__def strong { color: var(--accent); font-weight: 600; }
