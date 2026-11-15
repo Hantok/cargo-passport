@@ -2,7 +2,7 @@
    base.css, components.css): same tokens, no second copy. Only what the app alone needs is here.
    Rules of the look: dark ground, one orange accent, square 1px lines, no shadows, gradients, pills or badges. */
 body { min-height: 100vh; display: grid; grid-template-rows: auto 1fr auto; }
-.app { max-width: 82rem; width: 100%; align-self: start; margin: 0 auto; padding: var(--space-4) var(--gutter) var(--space-5); display: grid; gap: var(--space-3); }
+.app { max-width: var(--wrap); width: 100%; align-self: start; margin: 0 auto; padding: var(--space-4) var(--gutter) var(--space-5); display: grid; gap: var(--space-3); }
 .app h1 { font-size: var(--fs-h2); max-width: 24ch; }
 .mono { font-family: var(--mono); }
 .screen { display: grid; gap: var(--space-3); min-width: 0; }
