@@ -252,11 +252,11 @@ describe('the home story', () => {
     assert.match(homePageOf(root), /<h1 id="hook-title"[^>]*>Home story<\/h1>/);
   });
 
-  it('opens with the title, one line, the title-slide picture and two buttons, and the first beat keeps all its sentences', () => {
+  it('opens with the title, one line and two buttons, no picture, and the first beat keeps all its sentences', () => {
     const page = homePageOf(site());
     const opening = page.slice(page.indexOf('id="hook"'), page.indexOf('id="beat-journey"'));
     assert.match(opening, /<h1 id="hook-title"[^>]*>Home story<\/h1>/);
-    assert.ok(opening.includes('A dek of the home story.') && opening.includes('assets/images/hero-cargo.png'));
+    assert.ok(opening.includes('A dek of the home story.') && !opening.includes('<img') && !opening.includes('hook__art'));
     assert.equal((opening.match(/class="btn/g) ?? []).length, 2);
     assert.ok(!opening.includes('Opening one.'));
     const scene = page.slice(page.indexOf('id="beat-journey"'), page.indexOf('id="beat-onboard"'));

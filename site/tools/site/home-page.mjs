@@ -102,9 +102,6 @@ const openingScene = (story) => html`<section class="scene" id="hook" aria-label
           <a class="btn" href="#library">Stories</a>
         </div>
       </div>
-      <figure class="hook__art">
-        <img src="assets/images/hero-cargo.png" width="1672" height="941" alt="Same cargo. Different environment.">
-      </figure>
     </div>
   </section>`;
 
