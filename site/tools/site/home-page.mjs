@@ -2,7 +2,7 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { citedSentence, createCites, sourceList } from './cites.mjs';
 import { html, raw } from './html.mjs';
-import { page } from './layout.mjs';
+import { appLink, page } from './layout.mjs';
 import { fleet, rules } from './optional.mjs';
 import { passportBlock } from './passport.mjs';
 import { pad } from './parts.mjs';
@@ -92,13 +92,13 @@ const beatScene = (beat, sentences, number, ctx) => html`<section class="scene s
     </div>
   </section>`;
 
-const openingScene = (story) => html`<section class="scene" id="hook" aria-labelledby="hook-title">
+const openingScene = (story, passport) => html`<section class="scene" id="hook" aria-labelledby="hook-title">
     <div class="scene__inner hook hook--hero">
       <div class="hook__text">
         <h1 id="hook-title">${story.title}</h1>
         <p class="lead hook__line">${story.dek}</p>
         <div class="actions">
-          <a class="btn btn--primary" href="#beat-passport">Open the passport</a>
+          <a class="btn btn--primary" href="${appLink(passport.slug)}">Open the passport</a>
           <a class="btn" href="#library">Stories</a>
         </div>
       </div>
@@ -123,7 +123,7 @@ export function homePage({ root, shelf, passport, stories, evidence, home }) {
   const scenes = [];
   const railItems = [{ id: 'hook', label: 'Start' }];
   let number = 0;
-  const openingHtml = openingScene(story);
+  const openingHtml = openingScene(story, passport);
 
   for (const beat of story.beats) {
     if (beat === more || beat.interactive === 'fleet') continue; // the whole-vehicle scene has its own page: vehicle-page.mjs

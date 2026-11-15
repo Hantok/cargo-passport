@@ -1,0 +1,6 @@
+{
+  "app_path": "/app/",
+  "canonical_origin": "https://cargo-passport.qwadratic.me",
+  "legacy_hosts": ["cargo.qwadratic.me"],
+  "legacy_path": "/frontend"
+}

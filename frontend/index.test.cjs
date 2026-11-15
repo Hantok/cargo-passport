@@ -37,10 +37,11 @@ const compareFor = env => {
   };
 };
 const routes = { '/cargo': [{ slug: 'kit' }], '/environments': [{ id: 'iss', name: 'ISS', gravity_regime: 'microgravity', spaces: { cabin: {} } }, { id: 'moon', name: 'Moon base', gravity_regime: 'partial', gravity_g: 0.17, spaces: { cabin: {} } }],
-  '/routes': [{ id: 'R23', from_env: 'iss', to_env: 'moon', description: 'Hypothetical' }],
+  '/routes': [{ id: 'R23', from_env: 'iss', to_env: 'moon', status: 'hypothetical', description: 'Hypothetical' }],
   '/materials': [{ id: 'pmma-cast-sheet', material_class: 'polymer' }],
   '/investigations': [{ accession: 'PSI-25', acronym: 'BASS-II' }],
-  '/cargo/kit': { slug: 'kit', name: 'Science kit', purpose: 'Demo', provenance: 'illustrative', config_version: 1, components: comps } };
+  'content-map.json': JSON.parse(fs.readFileSync(path.join(__dirname, 'content-map.json'), 'utf8')),
+  '/cargo/kit': { slug: 'kit', name: 'Science kit', purpose: 'Handheld measuring device', provenance: 'illustrative', config_version: 1, components: comps } };
 const calls = [], bodies = {};
 let explainReply = { explanation: { status: 'ok', cached: false, sentences: [{ text: 'PMMA LOI is 17.3%.', source_ids: ['obs-7'] }] },
   sources: [{ source_id: 'obs-7', excerpt: 'LOI 17.3% O2.', locator: 'doc' }], disclosure: 'AI-generated from listed records.' };
@@ -59,7 +60,7 @@ const fetch = async (url, opts) => {
 
 const els = new Map();
 const el = id => { if (!els.has(id)) els.set(id, { innerHTML: '', textContent: '', value: '', querySelectorAll: () => [], querySelector: () => null, scrollIntoView() {} }); return els.get(id); };
-const location = { search: '?cargo=kit', hash: '', pathname: '/frontend/', protocol: 'http:', hostname: 'localhost', port: '5500', origin: 'http://localhost:5500' };
+const location = { search: '?cargo=kit', hash: '', pathname: '/app/', protocol: 'http:', hostname: 'localhost', port: '5500', origin: 'http://localhost:5500' };
 const saved = {}, clicked = [];
 const ctx = vm.createContext({ fetch, location, URLSearchParams, Promise, JSON, setTimeout,
   document: { getElementById: el, querySelectorAll: () => [], createElement: () => ({ click() { clicked.push(this.download); } }) },
@@ -78,8 +79,17 @@ const tick = () => new Promise(r => setTimeout(r, 0));
   assert.match(ov, /60 %/);
   assert.doesNotMatch(el('app').innerHTML, /id="details"/); // screen 1 alone until More details is clicked
   assert.doesNotMatch(el('app').innerHTML, /After QR scan|More details<\/p>/);
-  assert.match(ov, /Current location<\/h3><div class="big">ISS/);
-  assert.match(ov, /Final destination<\/h3><div class="big">Moon base/);
+  assert.match(ov, /Current location<\/h2><div class="value">ISS/);
+  assert.match(ov, /Final destination<\/h2><div class="value">Moon base/);
+  // Screen 0: cargo and route picker (not for shared passports).
+  assert.match(ov, /<select id="pick-cargo"><option value="kit" selected>/);
+  assert.match(ov, /<optgroup label="hypothetical"><option value="R23" selected>ISS → Moon base · hypothetical/);
+  // Links back to the site: ISS is microgravity, Moon base is not, the battery pack has no evidence.
+  const read = el('read').innerHTML;
+  assert.match(read, /href="\/stories\/quiet-fire\/">Read the story/);
+  assert.match(read, /href="\/stories\/">More examples/);
+  assert.match(read, /href="\/#beat-air">Read the story/);
+  assert.doesNotMatch(el('app').innerHTML + ov + read, /MOCK-|\(demo\)|\bDemo\b/i);
   assert.match(el('dest-summary').innerHTML, /fire evidence 1\/2 at destination/);
   assert.match(el('dest-summary').innerHTML, /1 gap</);
 
@@ -120,6 +130,11 @@ const tick = () => new Promise(r => setTimeout(r, 0));
   assert.match(body, /gas-burner analogues: 1 record,/);
   assert.equal(calls.filter(c => c === '/scenarios/compare').length, 2); // results cached per environment
   assert.match(body, /Ask about this evidence/);
+  assert.match(body, /<h2>Read the story<\/h2>/);
+  assert.match(body, /<a href="\/#beat-air">Read the story →<\/a>/); // oxygen and pressure differ here: the air section
+  assert.match(run("recordLinks('std6001_test1')"), /<a href="\/#beat-air">Read the story: The air differs by place →<\/a>/); // test methods point at the air section
+  assert.match(body, /<a href="\/stories\/quiet-fire\/">Read the story: The quiet fire[^<]*→<\/a>/); // PSI-25 is a source of the story
+  assert.doesNotMatch(body, /MOCK-|\(demo\)/i);
   assert.match(body, /Download passport/);
 
   // Selecting the current location says so instead of diffing against itself.
@@ -164,6 +179,17 @@ const tick = () => new Promise(r => setTimeout(r, 0));
   assert.equal(bodies['/shares/abc'].headers['x-edit-token'], 'tok');
   // After sharing, comparisons send the copied cargo instead of the slug.
   assert.equal(run('JSON.stringify(Object.keys(cargoRef()))'), '["cargo"]');
+
+  // Error screen: says what failed, offers the other cargo and a retry; nothing else is drawn.
+  run("state.share = null; state.list = [{ slug: 'kit', name: 'Science kit' }]; state.error = 'Cargo not found. Scan the QR code again.'; render()");
+  const errScreen = el('app').innerHTML;
+  assert.match(errScreen, /Passport not loaded/);
+  assert.match(errScreen, /Cargo not found/);
+  assert.match(errScreen, /href="\?cargo=kit&amp;route=R23">Science kit/);
+  assert.match(errScreen, /id="retry"/);
+  // A shared passport has its own cargo: no picker.
+  run("state.error = null; state.share = { slug: 'abc' }");
+  assert.equal(run('pickerHtml()'), '');
 
   // API default: local static server -> local backend; served by the API -> same origin; ?api= wins.
   const apiFor = (loc) => {

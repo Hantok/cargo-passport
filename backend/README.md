@@ -26,11 +26,11 @@ uv run python -m app.ingest.load       # after seed/data changes; safe to re-run
 uv run uvicorn serve:app --port 8000
 ```
 
-The dashboard is then at `http://localhost:8000/frontend/` and the API at `http://localhost:8000` (docs at `/docs`); `serve.py` serves the static pages on the same origin (see below), so no CORS setup is needed.
+The dashboard is then at `http://localhost:8000/app/` and the API at `http://localhost:8000` (docs at `/docs`); `serve.py` serves the static pages on the same origin (see below), so no CORS setup is needed.
 
 ## Hosted demo (one origin)
 
-`serve.py` mounts the static pages (`/frontend`, `/prototype`, `/presentation`, landing page `site/`) after the API routes, so API and frontend share one origin and no base URL or CORS setup is needed:
+`serve.py` mounts the static pages (`/app`, `/assets`, `/prototype`, `/presentation`, landing page `site/`) after the API routes, so API and frontend share one origin and no base URL or CORS setup is needed:
 
 ```bash
 cd backend

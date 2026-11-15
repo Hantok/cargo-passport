@@ -40,6 +40,7 @@
   }
   .brand { font: 700 var(--fs-xs) / 1 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--fg); text-decoration: none; }
   .brand span { color: var(--accent); }
+  .top__nav { display: flex; flex-wrap: wrap; gap: var(--space-1); }
 
   /* scene rail */
   .rail { position: fixed; z-index: 5; right: clamp(0.75rem, 2vw, 1.75rem); top: 50%; translate: 0 -50%; display: grid; gap: 0.2rem; }

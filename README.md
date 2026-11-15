@@ -150,7 +150,7 @@ uv run python -m app.ingest.load
 uv run uvicorn serve:app --port 8000
 ```
 
-Open **http://localhost:8000/frontend/** for the app and http://localhost:8000/docs for the API. "Explain" needs an SI key: set `SI_API_KEY` (Eustella AI, OpenAI-compatible; optional `SI_BASE_URL`, `SI_MODEL`). Without a key, everything else works and Explain says it is unavailable.
+Open **http://localhost:8000/app/** for the app and http://localhost:8000/docs for the API. "Explain" needs an SI key: set `SI_API_KEY` (Eustella AI, OpenAI-compatible; optional `SI_BASE_URL`, `SI_MODEL`). Without a key, everything else works and Explain says it is unavailable.
 
 Tests: `uv run pytest -q` in `backend/` (after the load step), and `node frontend/index.test.cjs`. More in [`backend/README.md`](backend/README.md) and [`backend/API.md`](backend/API.md).
 

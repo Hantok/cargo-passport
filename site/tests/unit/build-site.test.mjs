@@ -5,6 +5,8 @@ import { after, describe, it } from 'node:test';
 import { buildPages, siteWarnings, writePages } from '../../tools/build-site.mjs';
 import { defaultState } from '../../tools/site/passport.mjs';
 import { rules } from '../../tools/site/optional.mjs';
+import { qrSvg } from '../../tools/site/qr.mjs';
+import { toHtml } from '../../tools/site/html.mjs';
 import { PAGES, REPO } from '../../tools/site.mjs';
 import { scanHtml } from '../../tools/page-scan.mjs';
 import { BuildError } from '../../tools/site/load.mjs';
@@ -393,9 +395,15 @@ describe('the passport on the home page, written at build time', () => {
   const page = homePageOf(site());
 
   it('has a real QR code for the live passport and a link to the same address', () => {
-    const url = `https://cargo.qwadratic.me/frontend/?cargo=${passport.slug}&route=R23`;
+    const url = `https://cargo-passport.qwadratic.me/app/?cargo=${passport.slug}&route=R23`;
+    const path = `/app/?cargo=${passport.slug}&route=R23`;
     assert.match(page, /<svg class="pp-qr__svg" viewBox="0 0 \d+ \d+" role="img" aria-label="QR code that opens the live passport/);
-    assert.ok(page.includes(`href="${url.replaceAll('&', '&amp;')}"`));
+    assert.ok(page.includes(`href="${path.replaceAll('&', '&amp;')}"`), 'links to the app, same item and route');
+    assert.ok(!page.includes('/frontend/') && !page.includes('cargo.qwadratic.me'), 'the old app address is gone');
+    assert.ok(page.includes(`<a class="btn btn--primary" href="${path.replaceAll('&', '&amp;')}">Open the passport</a>`), 'the Open the passport buttons lead to the app');
+    assert.ok(page.includes('<a class="btn" href="/app/">App</a>'), 'the header links to the app');
+    const modules = (svg) => svg.match(/<path d="([^"]+)"/)[1];
+    assert.equal(modules(page.match(/<svg class="pp-qr__svg"[\s\S]*?<\/svg>/)[0]), modules(toHtml(qrSvg(url, 'x'))), 'the QR code encodes the absolute address of the app');
     assert.ok((page.match(/<svg class="pp-qr__svg"[\s\S]*?<\/svg>/)[0].match(/h1v1h-1z/g) ?? []).length > 200, 'the code has too few dark modules to be a QR code');
   });
 
