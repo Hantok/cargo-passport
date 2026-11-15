@@ -39,12 +39,19 @@ def test_iss_nominal_cabin_is_sourced(seed):
 
 @pytest.mark.parametrize(
     "env_id",
-    ["lunar-base-nasa", "lunar-base-china", "lunar-gateway", "martian-base-nasa", "martian-orbital-station-nasa"],
+    ["lunar-base-china", "lunar-gateway", "martian-base-nasa", "martian-orbital-station-nasa"],
 )
 def test_unpublished_cabins_stay_unknown(seed, env_id):
     for dim in (Dimension.o2_fraction, Dimension.pressure_kpa):
         c = cond(seed, env_id, "cabin", dim)
         assert c.status == ValueStatus.unknown and c.value_min is None and c.value_max is None
+
+
+def test_lunar_base_nasa_has_cited_planning_atmosphere(seed):
+    o2 = cond(seed, "lunar-base-nasa", "cabin", Dimension.o2_fraction)
+    p = cond(seed, "lunar-base-nasa", "cabin", Dimension.pressure_kpa)
+    assert (o2.status, o2.value_min, o2.value_max, o2.source_id) == (ValueStatus.sourced, 0.34, 0.34, "ices-2026-324")
+    assert (p.status, p.value_min, p.value_max, p.source_id) == (ValueStatus.sourced, 56.5, 56.5, "ices-2026-324")
 
 
 def test_elevated_o2_only_as_scenario(seed):

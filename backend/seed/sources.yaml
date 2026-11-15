@@ -33,6 +33,16 @@
   published_on: "2023-11-29"
   access_notes: "Catalogue: reviewed revision dated 29 November 2023; does not replace programme requirements."
 
+# --- Planning atmosphere for the lunar base (T49) --------------------------------------------
+- id: ices-2026-324
+  kind: paper
+  title: "Surface Vehicle Atmospheric Considerations for Moon to Mars Exploration (ICES-2026-324)"
+  doi: null
+  url: https://ntrs.nasa.gov/citations/20260002050
+  publisher: "NASA Johnson Space Center / Marshall Space Flight Center (55th International Conference on Environmental Systems)"
+  published_on: "2026"
+  access_notes: "Quote checked on PDF p. 3 (Sec. I Introduction). A planning target for sustained missions, not a specification of a built habitat; the paper also notes NASA teams test a vehicle atmosphere below 30% O2."
+
 # --- Material flammability (docs/environments/material-flammability-examples.md, Sources) ---
 - id: nasa-tb-26-05
   kind: paper

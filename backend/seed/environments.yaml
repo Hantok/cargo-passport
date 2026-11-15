@@ -4,6 +4,7 @@
 # temperature degC, relative humidity %. status unknown <=> value_min and value_max both null.
 # One-sided bounds ("at least", "at most") keep the other side null.
 # Lunar, Mars and Gateway cabins stay unknown: ISS values are never copied into them.
+# Exception: lunar-base-nasa carries the cited NASA planning target (34% O2, 56.5 kPa; ices-2026-324).
 
 # --- Space environments (6) -------------------------------------------------------------
 - id: iss
@@ -36,8 +37,8 @@
   doc_path: docs/environments/lunar-base-nasa.md
   conditions:
     cabin:
-      o2_fraction: {status: unknown, source_id: doc-env-dimensions, locator: "§1 Environments covered, row NASA lunar surface base", note: "Interior pressure / oxygen: Unknown / unknown. The 30% O2 scenario is a separate environment, not this base's specification."}
-      pressure_kpa: {status: unknown, source_id: doc-env-dimensions, locator: "§1 Environments covered, row NASA lunar surface base", note: "Interior pressure / oxygen: Unknown / unknown."}
+      o2_fraction: {value_min: 0.34, value_max: 0.34, status: sourced, source_id: ices-2026-324, locator: "Sec. I Introduction, p. 3 (PDF p. 3)", note: "NASA Artemis requirements for sustained missions target an average pressure of 8.2 psi (56.5 kPa) and a 34% oxygen concentration. Planning target, not a built habitat."}
+      pressure_kpa: {value_min: 56.5, value_max: 56.5, status: sourced, source_id: ices-2026-324, locator: "Sec. I Introduction, p. 3 (PDF p. 3)", note: "8.2 psi = 56.5 kPa. Planning target for sustained missions, not a built habitat."}
       airflow_ms: {status: unknown, source_id: doc-env-lunar-base-nasa, locator: "§5 Limits of this research", note: "Module atmosphere specifications not established."}
       temperature_c: {status: unknown, source_id: doc-env-lunar-base-nasa, locator: "§5 Limits of this research", note: "Module atmosphere specifications not established."}
       relative_humidity_pct: {status: unknown, source_id: doc-env-lunar-base-nasa, locator: "§5 Limits of this research", note: "Module atmosphere specifications not established."}

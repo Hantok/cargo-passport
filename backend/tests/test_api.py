@@ -42,8 +42,9 @@ def client():
 def test_reference_endpoints(client):
     envs = client.get("/environments").json()
     lunar = next(e for e in envs if e["id"] == "lunar-base-nasa")
-    # Lunar cabin O2 is unknown, not ISS's 21%.
-    assert lunar["spaces"]["cabin"]["o2_fraction"] == {**lunar["spaces"]["cabin"]["o2_fraction"], "min": None, "status": "unknown"}
+    # Lunar cabin O2 is the cited NASA planning target (34 %), not ISS's 21 %.
+    o2 = lunar["spaces"]["cabin"]["o2_fraction"]
+    assert (o2["min"], o2["max"], o2["status"], o2["source_id"]) == (0.34, 0.34, "sourced", "ices-2026-324")
     assert len(client.get("/routes").json()) == 24
     assert len(client.get("/investigations").json()) == 24
     assert client.get("/cargo/portable-science-instrument").json()["components"][1]["material_id"] is None
@@ -138,8 +139,8 @@ def test_si_tools_search_and_source_lookup(client):
 
     moved = tools["compare_in_environment"]("lunar-base-nasa")[0]
     assert moved["source_id"] == "compare-lunar-base-nasa-cabin"
-    assert "gravity lunar" in moved["excerpt"] and "o2_fraction unknown" in moved["excerpt"]
-    assert "o2_fraction 0.21 (sourced) -> unknown" in moved["excerpt"] and "gravity microgravity -> lunar" in moved["excerpt"]
+    assert "gravity lunar" in moved["excerpt"] and "o2_fraction 0.34 (sourced, source ices-2026-324)" in moved["excerpt"]
+    assert "o2_fraction 0.21 (sourced) -> 0.34 (sourced)" in moved["excerpt"] and "gravity microgravity -> lunar" in moved["excerpt"]
     summary = tools["get_cargo_summary"]()[0]["excerpt"]
     assert "Battery pack" in summary and "whole assembly: fire gap" in summary
     with pytest.raises(sc.NotFound):
