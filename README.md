@@ -5,9 +5,9 @@
 ### Know what flies.
 
 <p align="center">
-  <a href="https://nasa-fire-safety.qwadratic.me/"><img src="media/buttons/live-demo.svg" alt="Live Demo" height="60"></a>&nbsp;
+  <a href="https://space-fire-safety.qwadratic.me/"><img src="media/buttons/live-demo.svg" alt="Live Demo" height="60"></a>&nbsp;
   <a href="https://youtu.be/5JOlN18c3TY"><img src="media/buttons/youtube.svg" alt="Watch on YouTube" height="60"></a>&nbsp;
-  <a href="https://nasa-fire-safety.qwadratic.me/docs"><img src="media/buttons/docs.svg" alt="Documentation" height="60"></a>
+  <a href="https://space-fire-safety.qwadratic.me/docs"><img src="media/buttons/docs.svg" alt="Documentation" height="60"></a>
 </p>
 
 **A passport for space cargo: what it's made of, which NASA fire experiments apply where it's going, and what is still untested.**
