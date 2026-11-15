@@ -61,6 +61,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: pdftotext for the source-text tests
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq poppler-utils
       - name: Site build is committed and tests pass (offline gates, no install)
         run: |
           npm run build
