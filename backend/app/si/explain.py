@@ -1,4 +1,7 @@
-"""Grounded SI explanation via an OpenAI-compatible provider (Eustella AI).
+"""Grounded SI explanation by Claude (Anthropic Messages API).
+
+Provider: the local subscription shim on 127.0.0.1:4142 (it speaks the Anthropic Messages API and signs
+in with our Claude subscription). Any Anthropic-compatible endpoint works through SI_BASE_URL.
 
 Inputs (dict, JSON-serialisable):
   cargo, component, hazard, scenario: short summaries (str or dict)
@@ -14,9 +17,11 @@ Citations are still validated against records the backend actually supplied or r
 
 import hashlib
 import json
+import time
+from pathlib import Path
 from typing import Any
 
-from openai import OpenAI
+import httpx
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
@@ -24,8 +29,11 @@ from app.config import get_settings
 from app.models import SIExplanation
 
 NO_FINDING = "No applicable finding in our curated sources."
-TIMEOUT_S = 30.0
-MAX_TOOL_ROUNDS = 3  # each round is one provider request; Eustella allows 20/min for the whole org
+REQUEST_TIMEOUT_S = 45.0  # one provider request
+TOTAL_TIMEOUT_S = 100.0  # the whole tool loop
+MAX_TOOL_ROUNDS = 3  # each round is one provider request
+MAX_TOKENS = 4096
+ANTHROPIC_VERSION = "2023-06-01"
 
 SYSTEM_PROMPT = f"""You explain fire-safety evidence for one cargo item in the Cargo Passport tool.
 
@@ -54,11 +62,9 @@ def cache_key(inputs: dict, model: str | None = None) -> str:
     return hashlib.sha256(f"{_canonical(inputs)}\n{model}".encode()).hexdigest()
 
 
-def build_messages(inputs: dict) -> list[dict[str, str]]:
-    return [
-        {"role": "system", "content": SYSTEM_PROMPT},
-        {"role": "user", "content": "Evidence bundle (JSON):\n" + _canonical(inputs)},
-    ]
+def build_request(inputs: dict) -> tuple[str, list[dict]]:
+    """(system prompt, messages) for the first provider request."""
+    return SYSTEM_PROMPT, [{"role": "user", "content": "Evidence bundle (JSON):\n" + _canonical(inputs)}]
 
 
 def _first_json_object(text: str) -> Any:
@@ -83,45 +89,91 @@ def _redact(text: str, secret: str | None) -> str:
     return text.replace(secret, "[redacted]") if secret else text
 
 
-def _run(client: Any, model: str, messages: list[dict], tools: list[dict], allowed: set[str], fetched: list[dict]) -> str:
-    """Chat loop. Tool results add their record ids to `allowed` and records to `fetched`; the last round forbids tools."""
+class ProviderError(Exception):
+    """The provider could not answer; the message is safe to show (no secrets, no bodies)."""
+
+
+class ClaudeClient:
+    """Minimal Anthropic Messages client: `create(**payload)` returns the response dict."""
+
+    def __init__(self, base_url: str, api_key: str, timeout: float = REQUEST_TIMEOUT_S):
+        self.url = base_url.rstrip("/") + "/v1/messages"
+        # x-api-key for the shim and API keys; Authorization too, for gateways that expect a Bearer token.
+        self.headers = {"x-api-key": api_key, "authorization": f"Bearer {api_key}",
+                        "anthropic-version": ANTHROPIC_VERSION, "content-type": "application/json"}
+        self.timeout = timeout
+
+    def create(self, **payload: Any) -> dict:
+        try:
+            r = httpx.post(self.url, headers=self.headers, json=payload, timeout=self.timeout)
+        except httpx.TimeoutException:
+            raise ProviderError(f"provider timed out after {self.timeout:.0f} s") from None
+        except httpx.HTTPError as e:
+            raise ProviderError(f"provider unreachable ({type(e).__name__})") from None
+        if r.status_code != 200:
+            msg = ""
+            try:
+                msg = str(r.json().get("error", {}).get("message", ""))[:200]
+            except Exception:
+                pass
+            hint = " (quota or rate limit; retry later)" if r.status_code == 429 else ""
+            raise ProviderError(f"provider answered HTTP {r.status_code}{hint}" + (f": {msg}" if msg else ""))
+        try:
+            return r.json()
+        except ValueError:
+            raise ProviderError("provider returned a non-JSON body") from None
+
+
+def _text(resp: dict) -> str:
+    return "".join(b.get("text", "") for b in resp.get("content") or [] if b.get("type") == "text")
+
+
+def _tool_uses(resp: dict) -> list[dict]:
+    return [b for b in resp.get("content") or [] if b.get("type") == "tool_use"]
+
+
+def _run(client: Any, model: str, system: str, messages: list[dict], tools: list[dict], allowed: set[str], fetched: list[dict]) -> str:
+    """Claude tool loop. Tool results add their record ids to `allowed` and records to `fetched`; the last round forbids tools."""
     by_name = {t["name"]: t for t in tools}
-    specs = [{"type": "function", "function": {k: t[k] for k in ("name", "description", "parameters")}} for t in tools]
-    common = dict(model=model, temperature=0, max_tokens=4096,
-                  # Eustella reasoning off: faster and keeps reasoning text out of the JSON reply.
-                  extra_body={"chat_template_kwargs": {"enable_thinking": False}})
+    specs = [{"name": t["name"], "description": t["description"], "input_schema": t["parameters"]} for t in tools]
+    common = dict(model=model, max_tokens=MAX_TOKENS, system=system)  # no temperature: newer Claude models reject it
+    deadline = time.monotonic() + TOTAL_TIMEOUT_S
+
+    def call(**extra: Any) -> dict:
+        if time.monotonic() > deadline:
+            raise ProviderError(f"provider loop exceeded {TOTAL_TIMEOUT_S:.0f} s")
+        return client.create(messages=messages, **common, **extra)
+
     for round_ in range(MAX_TOOL_ROUNDS + 1):
-        if specs and round_ < MAX_TOOL_ROUNDS:
-            resp = client.chat.completions.create(messages=messages, tools=specs, **common)
+        last = round_ == MAX_TOOL_ROUNDS
+        if specs:
+            # A history with tool_use blocks needs `tools` declared; the last round turns them off with tool_choice.
+            resp = call(tools=specs, tool_choice={"type": "none"} if last else {"type": "auto"})
         else:
-            resp = client.chat.completions.create(messages=messages, response_format={"type": "json_object"}, **common)
-        msg = resp.choices[0].message
-        calls = getattr(msg, "tool_calls", None) or []
-        if not calls or not specs or round_ == MAX_TOOL_ROUNDS:
-            content = msg.content or ""
+            resp = call()
+        uses = _tool_uses(resp)
+        if not uses or not specs or last:
+            content = _text(resp)
             data = _first_json_object(content)
-            if specs and round_ < MAX_TOOL_ROUNDS and not (isinstance(data, dict) and "sentences" in data):
-                # JSON mode is off while tools are offered; ask once more for the required JSON.
-                messages += [{"role": "assistant", "content": content},
+            if specs and not last and not (isinstance(data, dict) and "sentences" in data):
+                # No tool call and no JSON: ask once more for the required JSON.
+                messages += [{"role": "assistant", "content": content or "(no text)"},
                              {"role": "user", "content": "Reply now with the required JSON object only."}]
-                resp = client.chat.completions.create(messages=messages, response_format={"type": "json_object"}, **common)
-                return resp.choices[0].message.content or ""
+                return _text(call(tools=specs, tool_choice={"type": "none"}))
             return content
-        messages.append({"role": "assistant", "content": msg.content or "", "tool_calls": [
-            {"id": c.id, "type": "function", "function": {"name": c.function.name, "arguments": c.function.arguments}}
-            for c in calls]})
-        for c in calls:
-            messages.append({"role": "tool", "tool_call_id": c.id, "content": json.dumps(_call_tool(by_name, c, allowed, fetched))})
+        messages.append({"role": "assistant", "content": resp["content"]})
+        messages.append({"role": "user", "content": [
+            {"type": "tool_result", "tool_use_id": u["id"], "content": json.dumps(_call_tool(by_name, u, allowed, fetched))}
+            for u in uses]})
     return ""
 
 
-def _call_tool(by_name: dict, call: Any, allowed: set[str], fetched: list[dict]) -> dict:
-    tool = by_name.get(call.function.name)
+def _call_tool(by_name: dict, use: dict, allowed: set[str], fetched: list[dict]) -> dict:
+    tool = by_name.get(use.get("name"))
     if tool is None:
-        return {"error": f"unknown tool {call.function.name}"}
+        return {"error": f"unknown tool {use.get('name')}"}
     try:
-        args = json.loads(call.function.arguments or "{}")
-        out = tool["fn"](**args)
+        out = tool["fn"](**(use.get("input") or {}))
     except Exception as e:  # bad arguments from the model go back to it as an error, not a crash
         return {"error": f"{type(e).__name__}: {e}"}
     # A tool returns a list of records, or {"records": [...], "note": "..."} to add context (e.g. truncation).
@@ -133,9 +185,10 @@ def _call_tool(by_name: dict, call: Any, allowed: set[str], fetched: list[dict])
 
 def explain(inputs: dict, client: Any = None, tools: list[dict] | None = None) -> dict:
     s = get_settings()
-    missing = [n for n in ("si_base_url", "si_api_key", "si_model") if not getattr(s, n)]
+    api_key = s.si_secret
+    missing = [n for n, v in (("SI_BASE_URL", s.si_base_url), ("SI_API_KEY", api_key), ("SI_MODEL", s.si_model)) if not v]
     if missing:
-        return {"status": "unavailable", "reason": "SI not configured: " + ", ".join(m.upper() for m in missing)}
+        return {"status": "unavailable", "reason": "SI not configured: " + ", ".join(missing)}
 
     allowed = {src["source_id"] for src in inputs.get("sources") or []}
     if not allowed:
@@ -148,11 +201,14 @@ def explain(inputs: dict, client: Any = None, tools: list[dict] | None = None) -
         }
 
     try:
-        client = client or OpenAI(base_url=s.si_base_url, api_key=s.si_api_key, timeout=TIMEOUT_S, max_retries=1)
+        client = client or ClaudeClient(s.si_base_url, api_key)
         fetched: list[dict] = []
-        content = _run(client, s.si_model, build_messages(inputs), tools or [], allowed, fetched)
-    except Exception as e:  # any provider/network failure becomes an honest error state
-        return {"status": "error", "reason": _redact(f"provider error: {type(e).__name__}: {e}", s.si_api_key)}
+        system, messages = build_request(inputs)
+        content = _run(client, s.si_model, system, messages, tools or [], allowed, fetched)
+    except ProviderError as e:
+        return {"status": "error", "reason": _redact(f"provider error: {e}", api_key)}
+    except Exception as e:  # any other failure becomes an honest error state
+        return {"status": "error", "reason": _redact(f"provider error: {type(e).__name__}: {e}", api_key)}
 
     data = _first_json_object(content)
     sentences = data.get("sentences") if isinstance(data, dict) else None

@@ -6,7 +6,7 @@ Backend for the Cargo Passport dashboard (see [build plan](../docs/build-plan.md
 
 ```bash
 cd backend
-cp .env.example .env              # Neon URLs (dev branch) and Eustella SI settings
+cp .env.example .env              # Neon URLs (dev branch) and the Explain (Claude) settings
 uv sync
 uv run alembic upgrade head       # create/upgrade the schema
 uv run python -m app.ingest.load  # load seed YAML + PSI data; safe to re-run
@@ -47,7 +47,7 @@ All configuration comes from environment variables (`.env` locally, the host's s
 |---|---|
 | `DATABASE_URL` | Neon pooled connection, used by the app |
 | `DATABASE_URL_DIRECT` | Neon direct connection (host without `-pooler`), used by Alembic |
-| `SI_BASE_URL`, `SI_API_KEY`, `SI_MODEL` | Eustella AI, OpenAI-compatible. Unset means the SI feature reports `unavailable` |
+| `SI_BASE_URL`, `SI_API_KEY`, `SI_API_KEY_FILE`, `SI_MODEL` | Explain: Claude over the Anthropic Messages API. Defaults: the local subscription shim `http://127.0.0.1:4142`, model `claude-sonnet-5-5`. The key is `SI_API_KEY` or the content of the file `SI_API_KEY_FILE`; with neither the SI feature reports `unavailable` |
 | `CORS_ORIGINS` | Comma-separated browser origins allowed to call the API (add the GitHub Pages origin) |
 | `ADMIN_PASSWORD` | Password of `/admin` (HTTP Basic, any user name). Unset: admin is off (503) |
 | `CARGO_ENV_FILE` | Service env file edited by the `/admin` widget (mode 600, systemd `EnvironmentFile=`) |
@@ -132,5 +132,5 @@ Values below are stored as NULL/unknown until someone checks the source. Fix the
 - The submarine CO₂ value is stored as an `estimate`, although the doc calls it a modelling assumption.
 
 **SI**
-- Live test passed (2026-11-14): Eustella accepts JSON mode; one answer for the portable instrument's enclosure was checked sentence by sentence against its records. Re-check after any change to the prompt or the record text in `app/scenario.py`.
-- Eustella is a closed beta: 20 requests/minute for the whole organisation, 2 in parallel. Explanations are cached; demo from prepared scenarios.
+- Provider: Claude (`claude-sonnet-5-5`) through the Anthropic Messages API; no temperature is sent (newer models reject it). Re-check one answer sentence by sentence against its records after any change to the prompt or the record text in `app/scenario.py`.
+- Explain allows 10 requests/minute per client IP; the shim also caps requests per hour. Explanations are cached; demo from prepared scenarios.

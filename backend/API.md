@@ -137,7 +137,7 @@ Citation ids: `obs-<id>` (an observation), `finding-<id>`, `scenario-conditions`
 
 When a `question` is sent, the model may look up more records with read-only tools: search observations, get a source, list findings, **compare this cargo in another environment** (e.g. "does the evidence still apply at the lunar base?") and **get the whole-cargo summary**; at most 3 rounds. Those records are appended to `ex.sources`, so every citation still resolves there. Without a question, explain is a single provider request. `explanation.cached` is true when served from the cache. Always show `ex.disclosure` near the text.
 
-Eustella allows 20 requests per minute for the whole team. Call explain on demand (a button), not on every slider move.
+Explain is limited to 10 requests per minute per client IP (HTTP 429 above that; cached answers count too). A provider call takes a few seconds, up to about 10 s with lookups, and fails with `error` after 45 s. Call explain on demand (a button), not on every slider move.
 
 ## 5. Download the passport
 

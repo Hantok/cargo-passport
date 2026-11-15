@@ -1,6 +1,6 @@
 from functools import lru_cache
+from pathlib import Path
 
-from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -11,11 +11,24 @@ class Settings(BaseSettings):
     # Neon's pooler (PgBouncer) is fine for the app; migrations should use a direct connection.
     database_url_direct: str | None = None
 
-    # Eustella AI (OpenAI-compatible). EUSTELLA_* names are accepted so .env lines can be copied
-    # from the team's other Eustella project; only the key is required.
-    si_base_url: str | None = Field("https://api.eustella.com/v1", validation_alias=AliasChoices("SI_BASE_URL", "EUSTELLA_BASE_URL"))
-    si_api_key: str | None = Field(None, validation_alias=AliasChoices("SI_API_KEY", "EUSTELLA_API_KEY"))
-    si_model: str | None = Field("eustella-v1.5", validation_alias=AliasChoices("SI_MODEL", "EUSTELLA_MODEL"))
+    # SI "Explain": Claude through the Anthropic Messages API. Default is the local subscription shim
+    # (127.0.0.1:4142). The key is SI_API_KEY, or the first line of the file SI_API_KEY_FILE
+    # (the shim's bearer file), so the secret never has to sit in an env file.
+    si_base_url: str | None = "http://127.0.0.1:4142"
+    si_api_key: str | None = None
+    si_api_key_file: str | None = None
+    si_model: str | None = "claude-sonnet-5-5"
+
+    @property
+    def si_secret(self) -> str | None:
+        if self.si_api_key:
+            return self.si_api_key
+        if self.si_api_key_file:
+            try:
+                return Path(self.si_api_key_file).read_text().strip() or None
+            except OSError:
+                return None
+        return None
 
     cors_origins: str = "http://localhost:8000"
 
