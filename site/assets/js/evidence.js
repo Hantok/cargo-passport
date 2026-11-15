@@ -73,14 +73,33 @@ function placeTip(element, point) {
   const rects = [...element.getClientRects()];
   const rect = (point && rects.find((r) => point.y >= r.top - 4 && point.y <= r.bottom + 4)) || rects[0] || element.getBoundingClientRect();
   const margin = 8;
+  const gap = 6;
   node.style.left = "0px";
   node.style.top = "0px";
+  node.style.bottom = "auto";
+  node.style.maxHeight = "";
   const { width, height } = node.getBoundingClientRect();
   const left = Math.min(Math.max(margin, (point ? point.x : rect.left) - 24), Math.max(margin, innerWidth - width - margin));
-  const below = rect.bottom + 6;
-  const top = below + height + margin > innerHeight && rect.top - height - 6 > margin ? rect.top - height - 6 : below;
+  const roomBelow = innerHeight - rect.bottom - gap - margin;
+  const roomAbove = rect.top - gap - margin;
   node.style.left = `${left}px`;
-  node.style.top = `${Math.max(margin, top)}px`;
+  if (height <= roomBelow) {
+    node.style.top = `${rect.bottom + gap}px`;
+  } else if (height <= roomAbove) {
+    node.style.top = `${rect.top - gap - height}px`;
+  } else if (innerWidth <= 759) {
+    // a phone, and neither side has room: a sheet at the bottom of the screen, as tall as it needs up to 60% of the screen
+    node.style.left = `${margin}px`;
+    node.style.top = "auto";
+    node.style.bottom = `${margin}px`;
+    node.style.maxHeight = `${Math.round(innerHeight * 0.6)}px`;
+  } else {
+    // a wide screen: the larger side, with the tooltip scrolling inside it
+    const below = roomBelow >= roomAbove;
+    const room = Math.max(roomBelow, roomAbove);
+    node.style.maxHeight = `${Math.max(room, 80)}px`;
+    node.style.top = below ? `${rect.bottom + gap}px` : `${Math.max(margin, rect.top - gap - Math.min(height, room))}px`;
+  }
 }
 
 function showTip(element, point) {

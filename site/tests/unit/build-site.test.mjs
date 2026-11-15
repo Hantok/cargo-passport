@@ -115,11 +115,14 @@ describe('build-site failures', () => {
     assert.ok(page.includes('Why?') && !page.includes('#story-ghost'));
   });
 
-  it('links a question to the card of the story it names', () => {
-    const root = site({ shelf: [entry('s'), entry('t', { state: 'proposed' })], stories: [story('s', { open_questions: [{ text: 'Why?', story: 't' }] })] });
+  it('links a question to the card of a published story it names, and names an unpublished one without a link', () => {
+    const root = site({ shelf: [entry('s'), entry('t')], stories: [story('s', { open_questions: [{ text: 'Why?', story: 't' }] }), story('t')] });
     const page = buildPages(root).find(({ path }) => path === 'stories/s/index.html').html;
-    assert.ok(page.includes('href="../../#story-t"') && page.includes('data-story="t"'));
+    assert.ok(page.includes('href="../#story-t"') && page.includes('data-story="t"'));
     assert.deepEqual(siteWarnings(root), []);
+    const hidden = site({ shelf: [entry('s'), entry('t', { state: 'proposed' })], stories: [story('s', { open_questions: [{ text: 'Why?', story: 't' }] })] });
+    const quiet = buildPages(hidden).find(({ path }) => path === 'stories/s/index.html').html;
+    assert.ok(!quiet.includes('href="../#story-t"') && quiet.includes('Why?'));
   });
 
   it('fails when the status in content differs from the shelf', () => {
@@ -185,13 +188,13 @@ describe('build-site output', () => {
     assert.ok(page.includes('Source b, Example org, 2001.'));
   });
 
-  it('writes one story page per content file, a home page and a page of all stories with a card for every shelf entry', () => {
+  it('writes one story page per content file, a home page and a page of all stories with a card for every published shelf entry only', () => {
     const root = site({ shelf: [entry('s'), entry('t', { state: 'proposed' })] });
     const written = writePages(root);
     assert.deepEqual(written, ['index.html', 'vehicle/index.html', 'stories/index.html', 'stories/s/index.html']);
     const home = readFileSync(join(root, 'stories/index.html'), 'utf8');
-    for (const id of ['s', 't']) assert.ok(home.includes(`id="story-${id}" data-story="${id}"`), `no card for ${id}`);
-    assert.match(home, /Not written yet\./);
+    assert.ok(home.includes('id="story-s" data-story="s"'), 'no card for the published story');
+    assert.ok(!home.includes('data-story="t"') && !/Not written yet|Proposed|data-stage|data-state/.test(home), 'an unpublished story or a stage label is shown');
     assert.ok(!/data-like|data-discuss|votes__count/.test(home), 'no likes or comments on the shelf');
   });
 
@@ -312,7 +315,7 @@ describe('the home story', () => {
   it('shows the shelf, the method and the gates after the story, with computed counts', () => {
     const shelf = [entry('s'), entry('t', { state: 'proposed', evidence_status: 'hypothesis' })];
     const all = buildPages(site({ shelf })).find(({ path }) => path === 'stories/index.html').html;
-    assert.match(all, /All <span data-computed="[^"]+">2<\/span>/);
+    assert.match(all, /All <span data-computed="[^"]+">1<\/span>/); // the unpublished story is not counted
     const page = homePageOf(site({ shelf }));
     assert.ok(page.indexOf('id="library"') > page.indexOf('id="beat-more"') || !page.includes('id="beat-more"'));
     assert.ok(page.indexOf('id="born"') > page.indexOf('id="library"') && page.indexOf('id="honest"') > page.indexOf('id="born"'));
