@@ -1,0 +1,84 @@
+@layer depth {
+  /* A scene is a small volume: children sit at different distances from the reader. */
+  .scene {
+    --numeral-h: clamp(4.5rem, 9vw, 8rem);
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: center;
+    min-height: 100svh;
+    padding: var(--space-6) var(--gutter);
+    perspective: var(--persp);
+    perspective-origin: 50% 40%;
+  }
+  .scene--short { min-height: 0; }
+  .scene__inner { position: relative; width: 100%; max-width: var(--wrap); margin-inline: auto; }
+
+  /* Approach from depth: scale, blur and opacity settle to the plane without bounce.
+     Hidden only once reveal.js has loaded, so the page reads without JavaScript. */
+  .reveal-ready [data-reveal]:not(.is-in) {
+    opacity: 0;
+    transform: translateZ(-90px) scale(var(--approach-scale));
+    filter: blur(var(--approach-blur));
+  }
+  [data-reveal].is-in {
+    transition:
+      opacity var(--t-approach) var(--ease-settle),
+      transform var(--t-approach) var(--ease-settle),
+      filter var(--t-approach) var(--ease-settle);
+    transition-delay: var(--delay, 0ms);
+  }
+
+  /* One light from the upper left. depth.js eases --lx and --ly toward the pointer,
+     so the highlight and shade on a slab slide a little as the pointer moves. */
+  .slab {
+    position: relative;
+    isolation: isolate;
+    overflow: clip;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: linear-gradient(165deg, rgb(26 46 80 / 0.74), rgb(15 29 51 / 0.86));
+    box-shadow: 0 34px 60px -34px rgb(2 6 14 / 0.9), 0 2px 0 0 rgb(255 255 255 / 0.04) inset;
+  }
+  .slab::before {
+    content: "";
+    position: absolute;
+    inset: -45%;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(closest-side at 32% 26%, rgb(255 211 166 / 0.11), transparent 70%),
+      radial-gradient(closest-side at 78% 86%, rgb(2 6 14 / 0.5), transparent 72%);
+    transform: translate3d(calc(var(--lx, 0) * 7%), calc(var(--ly, 0) * 7%), 0);
+  }
+
+  /* A numeral that floats behind a heading, outlined so it never competes with the text. */
+  .numeral {
+    position: absolute;
+    left: -0.04em;
+    bottom: calc(100% + 0.5rem);
+    z-index: -1;
+    font: 400 var(--numeral-h) / 1 var(--font);
+    letter-spacing: -0.05em;
+    color: transparent;
+    -webkit-text-stroke: 1px rgb(159 176 200 / 0.28);
+    user-select: none;
+    will-change: transform;
+  }
+  @media (max-width: 699px) { .scene { --numeral-h: 0rem; } .numeral { display: none; } }
+  .rule {
+    height: 1px;
+    border: 0;
+    background: linear-gradient(90deg, transparent, var(--line) 18%, var(--line) 82%, transparent);
+  }
+
+  [data-drift], [data-depth], [data-turn] { will-change: transform; }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-reveal], [data-reveal].is-in, .reveal-ready [data-reveal]:not(.is-in) {
+      opacity: 1; transform: none; filter: none; transition: none;
+    }
+    [data-drift], [data-depth], [data-turn], .layer, .fg, .planet, .planet svg { will-change: auto; }
+    .slab::before { transform: none; }
+  }
+}

@@ -1,0 +1,54 @@
+<!-- Far to near: stars, glow, near stars, planet limb with orbit arcs, dust. -->
+<div class="cosmos" data-cosmos aria-hidden="true">
+  <div class="layer layer--stars-far" data-depth="0.03"></div>
+  <div class="layer layer--glow" data-depth="0.06" data-drift="26"></div>
+  <div class="layer layer--stars-near" data-depth="0.1" data-loop="1130"></div>
+  <div class="planet" data-depth="-0.025">
+    <svg viewBox="0 0 1000 1000" focusable="false">
+      <defs>
+        <radialGradient id="planet-fill" cx="500" cy="500" r="360" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stop-color="#0b1628"/>
+          <stop offset="0.86" stop-color="#0e1b32"/>
+          <stop offset="0.97" stop-color="#17294a"/>
+          <stop offset="1" stop-color="#21396a"/>
+        </radialGradient>
+        <linearGradient id="planet-rim" x1="230" y1="180" x2="780" y2="150" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stop-color="#ff8c1a" stop-opacity="0.62"/>
+          <stop offset="0.55" stop-color="#ffd3a6" stop-opacity="0.35"/>
+          <stop offset="1" stop-color="#4fb3ff" stop-opacity="0.55"/>
+        </linearGradient>
+        <filter id="planet-glow" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="9"/></filter>
+      </defs>
+      <circle cx="500" cy="500" r="360" fill="url(#planet-fill)"/>
+      <circle cx="500" cy="500" r="362" fill="none" stroke="url(#planet-rim)" stroke-width="16" opacity="0.2" filter="url(#planet-glow)"/>
+      <circle cx="500" cy="500" r="360" fill="none" stroke="url(#planet-rim)" stroke-width="1.5"/>
+    </svg>
+    <svg viewBox="0 0 1000 1000" focusable="false" data-turn="16">
+      <circle class="ticks" cx="500" cy="500" r="382" pathLength="360" stroke-dasharray="0.3 4.7"/>
+      <circle class="ticks ticks--minor" cx="500" cy="500" r="379" pathLength="360" stroke-dasharray="0.15 0.85"/>
+    </svg>
+    <svg viewBox="0 0 1000 1000" focusable="false" data-turn="-8">
+      <circle class="orbit" cx="500" cy="500" r="420"/>
+      <circle class="orbit orbit--dash" cx="500" cy="500" r="458"/>
+      <circle class="orbit" cx="500" cy="500" r="494"/>
+    </svg>
+    <svg viewBox="0 0 1000 1000" focusable="false" data-turn="11">
+      <g transform="rotate(-22 500 500)">
+        <ellipse class="orbit" cx="500" cy="500" rx="480" ry="330"/>
+        <circle class="craft" cx="417" cy="175" r="3.2"/>
+        <circle class="craft" cx="417" cy="175" r="9" opacity="0.18"/>
+      </g>
+    </svg>
+  </div>
+  <div class="layer layer--dust" data-depth="0.3" data-loop="1000" data-drift="14"></div>
+  <div class="layer layer--dust layer--dust-far" data-depth="0.55" data-loop="1400" data-drift="18"></div>
+</div>
+
+<!-- Large out-of-focus objects close to the camera, in front of the content, never in the way. -->
+<div class="cosmos-front" data-cosmos aria-hidden="true">
+  <div class="fg fg--ring" data-depth="1.7" data-at="0.16" data-drift="10"></div>
+  <div class="fg fg--panel" data-depth="2.1" data-at="0.42" data-drift="12"></div>
+  <div class="fg fg--bolt" data-depth="1.45" data-at="0.66" data-drift="8"></div>
+  <div class="fg fg--rod" data-depth="1.9" data-at="0.9" data-drift="9"></div>
+</div>
+

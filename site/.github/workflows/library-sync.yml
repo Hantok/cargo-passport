@@ -1,0 +1,40 @@
+name: library-sync
+
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  contents: write
+
+concurrency:
+  group: library-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Sync story issues and vote counts
+        run: node tools/library-sync.mjs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+      - name: Commit changed data files
+        run: |
+          if [ -z "$(git status --porcelain -- data/stories.json data/votes.json)" ]; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/stories.json data/votes.json
+          git commit -m "Update story issues and vote counts"
+          git pull --rebase
+          git push

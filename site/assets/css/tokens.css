@@ -1,0 +1,56 @@
+@layer ui-sdk, base, depth, components;
+
+:root {
+  /* colour: the team's app palette (frontend/index.html), unchanged */
+  --bg: #0b1628;
+  --frame: #0f1d33;
+  --card: #13233d;
+  --line: #22385c;
+  --hover: #1a2e50;
+  --fg: #ffffff;
+  --soft: #ffd3a6;
+  --muted: #9fb0c8;
+  --accent: #ff8c1a;
+  --accent-hover: #ffa143;
+  --found: #4fb3ff;
+  --gap: #ff5a45;
+  --none: #6b7c96;
+  --nohaz: #3ccf8e;
+
+  /* type */
+  --font: "Segoe UI", system-ui, sans-serif;
+  --mono: Consolas, "SF Mono", monospace;
+  --fs-xs: 0.75rem;
+  --fs-sm: 0.875rem;
+  --fs-md: 1rem;
+  --fs-lg: clamp(1.125rem, 1.4vw, 1.375rem);
+  --fs-h3: clamp(1.25rem, 2vw, 1.625rem);
+  --fs-h2: clamp(2rem, 5vw, 3.75rem);
+  --fs-h1: clamp(2.5rem, 7.2vw, 6rem);
+  --track-tight: -0.025em;
+  --track-label: 0.14em;
+  --measure: 38rem;
+
+  /* space and shape */
+  --gutter: clamp(1rem, 5vw, 4rem);
+  --wrap: 72rem;
+  --space-1: 0.5rem;
+  --space-2: 1rem;
+  --space-3: 1.5rem;
+  --space-4: 2.5rem;
+  --space-5: 4rem;
+  --space-6: clamp(5rem, 14vh, 9rem);
+  --radius: 14px;
+  --radius-pill: 999px;
+
+  /* depth: how far apart the z-layers sit and how blurred they are */
+  --persp: 1400px;
+  --light-x: -0.6;
+  --light-y: -0.8;
+
+  /* motion: approach from depth, settle without bounce */
+  --ease-settle: cubic-bezier(0.16, 1, 0.3, 1);
+  --t-approach: 1.4s;
+  --approach-scale: 0.94;
+  --approach-blur: 6px;
+}

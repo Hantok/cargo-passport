@@ -1,0 +1,47 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  offline-gates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: sudo apt-get update && sudo apt-get install -y poppler-utils
+      - run: npm test
+
+  live-quotes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: sudo apt-get update && sudo apt-get install -y poppler-utils
+      - run: npm run test:quotes
+
+  judge:
+    runs-on: ubuntu-latest
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+        if: env.ANTHROPIC_API_KEY != ''
+      - uses: actions/setup-node@v4
+        if: env.ANTHROPIC_API_KEY != ''
+        with:
+          node-version: 22
+      - run: sudo apt-get update && sudo apt-get install -y poppler-utils
+        if: env.ANTHROPIC_API_KEY != ''
+      - run: npm run test:judge
+        if: env.ANTHROPIC_API_KEY != ''
+      - uses: actions/upload-artifact@v4
+        if: always() && env.ANTHROPIC_API_KEY != ''
+        with:
+          name: judge-report
+          path: reports/
