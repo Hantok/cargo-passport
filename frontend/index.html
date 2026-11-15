@@ -4,137 +4,41 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Cargo Passport</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%277%27 fill=%27%23101c2e%27/%3E%3Ccircle cx=%2716%27 cy=%2715%27 r=%278%27 fill=%27%23ffc878%27/%3E%3Ccircle cx=%2716%27 cy=%2715%27 r=%276%27 fill=%27%23ff8a2a%27/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='none' stroke='%23ff8c1a' stroke-width='2'/%3E%3Ccircle cx='16' cy='16' r='8' fill='%234fb3ff'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#0b1628">
 <!-- Spec: docs/ui-ux.md. Data: backend/API.md. Open with ?cargo=<slug>&route=<route id> (what the QR code encodes)
-     or ?share=<slug> (a saved passport); ?api=<url> points at another backend. Served by the backend at /app. -->
-<style>
-  :root { --bg:#0b1628; --frame:#0f1d33; --card:#13233d; --line:#22385c; --fg:#ffffff; --soft:#ffd3a6; --muted:#9fb0c8; --accent:#ff8c1a;
-          --found:#4fb3ff; --gap:#ff5a45; --none:#6b7c96; --nohaz:#3ccf8e; --match:#3ccf8e; --differs:#ff5a45; --hover:#1a2e50; }
-  * { box-sizing:border-box; }
-  html { scroll-behavior:smooth; }
-  body { margin:0; background:var(--bg); color:var(--fg); font:14px/1.45 "Segoe UI", system-ui, sans-serif; }
-  main { max-width:1320px; margin:0 auto; padding:18px 20px 28px; }
-  a { color:var(--accent); }
-  button, input, select, textarea { font:inherit; }
-  :focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
-  .mono { font-family:Consolas, "SF Mono", monospace; }
-  .small { font-size:12px; color:var(--muted); }
-  .msg { padding:40px; text-align:center; color:var(--muted); }
-  .err { color:var(--gap); }
-  .tag { font-size:10px; padding:1px 6px; border-radius:4px; border:1px solid var(--line); color:var(--muted); margin-left:4px; white-space:nowrap; }
-  .pill { display:inline-block; font-size:11px; padding:1px 9px; border-radius:999px; border:1px solid currentColor; margin:6px 6px 0 0; white-space:nowrap; }
-  /* page frame */
-  .frame { background:var(--frame); border:1px solid var(--line); border-radius:20px; padding:20px; scroll-margin-top:12px; }
-  .frame-title { margin:0 0 14px; font-size:13px; font-weight:700; color:var(--accent); letter-spacing:.1em; text-transform:uppercase; }
-  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px; }
-  h2 { margin:0 0 12px; font-size:12px; color:var(--muted); letter-spacing:.1em; text-transform:uppercase; }
-  .btn { background:none; border:1px solid var(--line); border-radius:999px; padding:6px 14px; color:var(--soft); cursor:pointer; font-size:12px; transition:background .15s; }
-  .btn:hover { background:var(--hover); }
-  .btn.primary { background:var(--accent); border-color:var(--accent); color:#0b1628; font-weight:700; }
-  .btn.primary:hover { background:#ffa143; }
-  .btn:disabled { opacity:.5; cursor:wait; }
-  /* 1 · overview */
-  .ov { display:grid; grid-template-columns:1.35fr 1fr; gap:14px; }
-  .ov h1 { margin:6px 0 2px; font-size:30px; letter-spacing:-.3px; }
-  .items { list-style:none; padding:0; margin:14px 0 0; font-size:13px; }
-  .items li { display:flex; justify-content:space-between; gap:12px; padding:8px 0; border-bottom:1px dashed var(--line); color:var(--soft); cursor:pointer; }
-  .items li:hover, .items li.focus { color:var(--fg); }
-  .items li span:last-child { color:var(--muted); white-space:nowrap; font-variant-numeric:tabular-nums; }
-  .mass { display:flex; height:8px; border-radius:4px; overflow:hidden; margin-top:14px; gap:2px; }
-  .mass i { display:block; height:100%; }
-  .side { display:grid; grid-template-rows:auto 1fr 1fr; gap:10px; }
-  .side .card { display:flex; flex-direction:column; justify-content:center; padding:14px 18px; }
-  .side h3 { margin:0 0 6px; font-size:11px; color:var(--muted); letter-spacing:.1em; text-transform:uppercase; font-weight:600; }
-  .big { font-size:19px; font-weight:600; }
-  a.details { border-color:var(--accent); text-decoration:none; color:var(--fg); transition:background .15s; }
-  a.details:hover, a.details:focus-visible { background:var(--hover); }
-  a.details .big { color:var(--accent); }
-  /* 2 · details */
-  .dhead { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:12px; font-size:12px; color:var(--muted); }
-  .dhead a { font-weight:700; text-decoration:none; font-family:Consolas, monospace; }
-  .dhead select, .env select { background:var(--card); color:var(--soft); border:1px solid var(--line); border-radius:999px; padding:4px 10px; font-size:12px; }
-  #more-env { width:auto; max-width:190px; }
-  .env { display:flex; gap:8px; align-items:center; margin-bottom:12px; flex-wrap:wrap; }
-  .chip { background:none; border:1px solid var(--line); border-radius:999px; padding:5px 14px; font-size:12px; color:var(--soft); cursor:pointer; transition:background .15s; }
-  .chip:hover { background:var(--hover); }
-  .chip[aria-pressed="true"] { background:var(--accent); border-color:var(--accent); color:#0b1628; font-weight:700; }
-  .chip.here { border-color:var(--soft); }
-  .custom { display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:12px 18px; margin-bottom:12px; }
-  .custom label { font-size:12px; color:var(--muted); display:block; }
-  .custom label b { color:var(--fg); font-size:14px; font-variant-numeric:tabular-nums; }
-  .custom input[type=range] { width:100%; accent-color:var(--accent); }
-  .custom .base { grid-column:1 / -1; display:flex; gap:10px; align-items:center; flex-wrap:wrap; font-size:12px; color:var(--muted); }
-  .custom select { background:var(--bg); color:var(--soft); border:1px solid var(--line); border-radius:8px; padding:4px 8px; }
-  .diff { display:flex; align-items:stretch; margin-bottom:14px; padding:14px 0; }
-  .diff > div { padding:0 18px; border-left:1px solid var(--line); font-size:12px; color:var(--muted); }
-  .diff > div:first-child { border-left:0; }
-  .diff b { display:block; color:var(--fg); font-size:15px; margin-top:3px; white-space:nowrap; }
-  .diff .lead b { font-size:14px; }
-  .diff .evc { flex:1; min-width:200px; }
-  .diff .evc b { white-space:normal; font-size:13px; line-height:1.6; }
-  .diff .same { color:var(--muted); }
-  .up { color:var(--gap); } .dn { color:var(--accent); }
-  .diff { flex-wrap:wrap; }
-  .diff > .care { flex-basis:100%; border-left:0; border-top:1px solid var(--line); margin-top:14px; padding-top:12px; }
-  .care .head { font-size:14px; font-weight:700; }
-  .care .head.warn { color:var(--accent); } .care .head.ok { color:var(--match); }
-  .care ul { margin:6px 0 0; padding-left:18px; color:var(--soft); columns:2 320px; column-gap:28px; }
-  .care li { margin:2px 0; break-inside:avoid; }
-  .dg { display:grid; grid-template-columns:minmax(300px, .95fr) 1.1fr 1.25fr; gap:14px; align-items:stretch; }
-  .donut circle.seg { transition:stroke-width .15s, opacity .15s; cursor:pointer; }
-  .legend { list-style:none; padding:0; margin:12px 0 0; font-size:12px; }
-  .legend li { display:flex; align-items:baseline; gap:8px; padding:5px 6px; margin:0 -6px; border-radius:6px; color:var(--soft); cursor:pointer; }
-  .legend li:hover, .legend li.focus { background:var(--hover); }
-  .legend i { width:10px; height:10px; border-radius:2px; flex:none; }
-  .legend em { margin-left:auto; font-style:normal; font-weight:700; font-size:11px; white-space:nowrap; text-transform:uppercase; letter-spacing:.03em; }
-  table { width:100%; border-collapse:collapse; font-size:13px; }
-  th { text-align:left; font-weight:600; color:var(--muted); font-size:11px; padding:0 6px 8px; }
-  td { padding:9px 6px; border-bottom:1px dashed var(--line); vertical-align:top; color:var(--soft); }
-  tr.focus td { background:var(--hover); }
-  tbody tr { cursor:pointer; }
-  td:first-child { color:var(--fg); }
-  td.agent { color:var(--accent); font-weight:600; }
-  .ev { font-size:12px; border-bottom:1px dashed var(--line); color:var(--soft); }
-  .ev summary { list-style:none; cursor:pointer; padding:9px 6px; margin:0 -6px; border-radius:6px; }
-  .ev summary::-webkit-details-marker { display:none; }
-  .ev summary:hover, .ev.focus summary { background:var(--hover); }
-  .ev summary b { color:var(--accent); font-size:13px; }
-  .ev .line { display:block; color:var(--fg); margin-top:2px; }
-  .ev .more { padding:0 0 10px; color:var(--muted); }
-  .ev .more div { margin-top:4px; }
-  .c-match { color:var(--match); } .c-differs { color:var(--differs); } .c-unknown { color:var(--muted); }
-  .lim { margin-top:10px; font-size:11px; color:var(--muted); }
-  .lim summary { cursor:pointer; color:var(--soft); }
-  .lim ul { margin:6px 0 0; padding-left:18px; }
-  .foot { text-align:right; margin-top:12px; font-size:11px; letter-spacing:.04em; color:var(--muted); }
-  /* SI and passport */
-  .lower { display:grid; grid-template-columns:2fr 1fr; gap:14px; margin-top:14px; align-items:stretch; }
-  .ask { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:10px; }
-  .ask select, .ask input { background:var(--bg); color:var(--fg); border:1px solid var(--line); border-radius:8px; padding:7px 10px; font-size:13px; }
-  .ask input { flex:1; min-width:220px; }
-  .suggest { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px; }
-  .suggest button { background:none; border:1px dashed var(--line); color:var(--muted); border-radius:999px; padding:3px 10px; font-size:11px; cursor:pointer; }
-  .suggest button:hover { color:var(--soft); border-color:var(--soft); }
-  .answer p { margin:0 0 8px; color:var(--fg); }
-  .answer sup a { text-decoration:none; font-size:10px; margin-left:2px; }
-  .cites { list-style:none; padding:0; margin:10px 0 0; border-top:1px solid var(--line); max-height:220px; overflow:auto; }
-  .cites li { font-size:11px; color:var(--muted); padding:6px 0; border-bottom:1px dashed var(--line); }
-  .cites li b { color:var(--accent); font-family:Consolas, monospace; }
-  .cites li:target { background:var(--hover); }
-  .actions { display:flex; flex-direction:column; gap:10px; }
-  .actions .row { display:flex; gap:8px; flex-wrap:wrap; }
-  .actions input { width:100%; background:var(--bg); color:var(--soft); border:1px solid var(--line); border-radius:8px; padding:6px 8px; font-size:12px; }
-  @media (max-width:1100px) { .dg { grid-template-columns:1fr 1fr; } .dg > :first-child { grid-column:1 / -1; } }
-  @media (max-width:760px) { .ov, .dg, .lower { grid-template-columns:1fr; } .side { grid-template-rows:auto; } .diff { flex-wrap:wrap; gap:10px 0; }
-    .diff > div { border-left:0; padding:0 12px; } main { padding:12px; } .frame { padding:14px; border-radius:16px; } }
-</style>
+     or ?share=<slug> (a saved passport); ?api=<url> points at another backend. Served by the backend at the app path
+     of config/app.json (/app/). Tokens, fonts, header and buttons are the site's (/assets/css), the rest is app.css.
+     Links back to the site's stories: content-map.json. -->
+<link rel="stylesheet" href="/assets/css/tokens.css?v=20261116">
+<link rel="stylesheet" href="/assets/css/base.css?v=20261116">
+<link rel="stylesheet" href="/assets/css/components.css?v=20261116">
+<link rel="stylesheet" href="app.css?v=20261116">
 </head>
 <body>
-<main id="app"><p class="msg">Loading cargo passport…</p></main>
+<a class="skip" href="#app">Skip to the content</a>
+<header class="top">
+  <a class="brand" href="/" data-site="/">Cargo <span>Passport</span></a>
+  <nav class="top__nav" aria-label="Site">
+    <a class="btn" href="/#library" data-site="/#library">Stories</a>
+    <a class="btn" href="./" aria-current="page" id="nav-app">App</a>
+  </nav>
+</header>
+<main class="app" id="app" tabindex="-1"><p class="msg" role="status">Loading the passport…</p></main>
+<footer class="foot">
+  <div class="foot__inner">
+    <p class="foot__verdict">Not a safety verdict. This passport organises evidence; people decide.</p>
+    <ul>
+      <li><a href="/" data-site="/">About the passport</a></li>
+      <li><a href="/stories/" data-site="/stories/">Stories</a></li>
+      <li><a href="https://github.com/Hantok/cargo-passport" rel="noopener">Repository</a></li>
+    </ul>
+  </div>
+</footer>
 <script>
 const params = new URLSearchParams(location.search);
 // API URL: ?api= wins. Opened from a file or a local static server (port 5500) it defaults to the local backend;
-// served by the API itself (backend/serve.py mounts this page at /frontend) it uses the same origin.
+// served by the API itself (backend/serve.py mounts this page at the app path of config/app.json, /app/; the old /frontend answers 301) it uses the same origin.
 const LOCAL_STATIC = location.protocol === 'file:' || (/^(localhost|127\.0\.0\.1)$/.test(location.hostname) && location.port === '5500');
 const API = params.get('api') || (LOCAL_STATIC ? 'http://localhost:8000' : location.origin);
 const DEFAULT_ROUTE = 'R23'; // ISS → NASA lunar surface base, used when the QR code carries no route
@@ -169,7 +73,7 @@ const AGENTS = {
 };
 
 const state = { cargo: null, route: null, envs: {}, materials: {}, current: null, dest: null, selected: null, results: {}, error: null,
-                useState: 'stowed', custom: null, share: null, focus: null, acronyms: {}, ask: { component: 0, question: '', answer: null, busy: false }, notice: '' };
+                useState: 'stowed', custom: null, share: null, focus: null, acronyms: {}, list: [], routes: [], map: null, ask: { component: 0, question: '', answer: null, busy: false }, notice: '' };
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const pct = x => Math.round(x * 100) + ' %';
@@ -209,7 +113,7 @@ function conditionChanges(cur, sel) {
     const from = fmtValue(dim, a), to = fmtValue(dim, b);
     const mid = e => (e.min + (e.max ?? e.min)) / 2;
     const dir = a?.min != null && b?.min != null && mid(a) !== mid(b) ? (mid(b) > mid(a) ? 'up' : 'dn') : '';
-    return { label, from, to, dir, same: from === to };
+    return { key: dim.replace(/_.*/, ''), label, from, to, dir, same: from === to };
   });
   const g = [gravityText(cur.environment), gravityText(sel.environment)];
   rows.push({ label:'Gravity', from:g[0], to:g[1], dir:'', same:g[0] === g[1] });
@@ -270,7 +174,9 @@ async function compare(envId, overrides = {}) {
 
 async function load() {
   try {
-    const [list, envs, routes, materials, invs] = await Promise.all([call('/cargo'), call('/environments'), call('/routes'), call('/materials'), call('/investigations').catch(() => [])]);
+    const [list, envs, routes, materials, invs, map] = await Promise.all([call('/cargo'), call('/environments'), call('/routes'), call('/materials'), call('/investigations').catch(() => []), loadMap()]);
+    state.list = list; state.routes = routes; state.map = map;
+    applySiteBase();
     invs.forEach(i => state.acronyms[i.accession] = i.acronym || i.accession);
     envs.forEach(e => state.envs[e.id] = e);
     materials.forEach(m => state.materials[m.id] = m);
@@ -301,17 +207,119 @@ async function load() {
   render();
 }
 
+// Links back to the site's stories and sections. One data file, content-map.json: pages, topics, records.
+// A missing or broken file only hides the links; the passport itself does not depend on it.
+async function loadMap() {
+  try {
+    const r = await fetch('content-map.json');
+    if (!r.ok) return null;
+    const m = await r.json();
+    return m && m.pages && m.topics ? m : null;
+  } catch { return null; }
+}
+const siteBase = () => (state.map?.site ?? '').replace(/\/$/, '');
+const siteHref = path => siteBase() + path;
+function applySiteBase() {
+  document.querySelectorAll('[data-site]').forEach(a => { a.href = siteHref(a.dataset.site); });
+}
+const linkLabel = page => page.kind === 'examples' ? 'More examples' : 'Read the story';
+
+// Which topics fit this view. ctx: comps (cargo components), envs (environment objects in view), dims (changed or unknown
+// condition names), gap (a component has no fire evidence), assembly (the assembly is not covered).
+function topicsFor(ctx) {
+  const map = state.map;
+  if (!map) return [];
+  const text = ctx.comps.map(c => `${c.name} ${c.original_label} ${c.material_id ?? ''}`).join(' | ');
+  return map.topics.filter(t => {
+    const w = t.when || {};
+    if (w.always) return true;
+    if (w.text && new RegExp(w.text, 'i').test(text)) return true;
+    if (w.gravity && ctx.envs.some(e => e && w.gravity.includes(e.gravity_regime))) return true;
+    if (w.dims && w.dims.some(d => ctx.dims.has(d))) return true;
+    if (w.gap && ctx.gap) return true;
+    if (w.assembly && ctx.assembly) return true;
+    return false;
+  });
+}
+
+// "Read the story" list: one line per page, why it is listed, deduplicated by page.
+function readPanel(ctx) {
+  const seen = new Set(), rows = [];
+  for (const t of topicsFor(ctx)) for (const id of t.pages) {
+    const page = state.map.pages[id];
+    if (!page || seen.has(id)) continue;
+    seen.add(id);
+    rows.push(`<li><strong>${esc(page.title)}</strong><span>${esc(page.about || '')}</span><a href="${esc(siteHref(page.href))}">${linkLabel(page)} →</a></li>`);
+  }
+  return rows.length ? `<section class="panel read" aria-label="Stories and examples"><h2>Read the story</h2><ul class="read__list">${rows.join('')}</ul></section>` : '';
+}
+
+// Pages that explain one test record: by PSI accession (the story lists it among its sources) or by test method.
+function recordPages(key) {
+  const map = state.map;
+  if (!map || !key) return [];
+  const ids = new Set(map.records?.[key] || []);
+  for (const [id, page] of Object.entries(map.pages)) if ((page.basis || []).includes(key)) ids.add(id);
+  return [...ids].map(id => map.pages[id]).filter(Boolean);
+}
+const recordLinks = key => recordPages(key).slice(0, 2).map(p => `<div><a href="${esc(siteHref(p.href))}">${linkLabel(p)}: ${esc(p.title)} →</a></div>`).join('');
+
+function ctxFor(sel, extra = {}, cur = null) {
+  const dims = new Set((sel?.incomplete_dimensions || []).map(d => d.replace(/_.*/, '')));
+  if (cur && sel) conditionChanges(cur, sel).filter(r => !r.same).forEach(r => dims.add(r.key));
+  const cov = sel?.coverage?.fire;
+  return { comps: state.cargo.components, envs: [state.envs[state.current], state.envs[state.dest]], dims, gap: !!cov?.summary?.gap,
+    assembly: !!cov && cov.assembly.status !== 'evidence_found', ...extra };
+}
+
+// ---- cargo and route picker ----
+const routeLabel = r => `${shortName(r.from_env)} → ${shortName(r.to_env)} · ${r.status}`;
+function pickerHtml() {
+  if (state.share || !state.list.length) return '';
+  const routeOpts = ['supported', 'historical', 'study', 'hypothetical'].map(st => {
+    const rs = state.routes.filter(r => r.status === st);
+    return rs.length ? `<optgroup label="${st}">${rs.map(r => `<option value="${esc(r.id)}"${r.id === state.route?.id ? ' selected' : ''}>${esc(routeLabel(r))}</option>`).join('')}</optgroup>` : '';
+  }).join('');
+  return `<form class="panel picker" id="picker" aria-label="Choose cargo and route">
+    <div class="field"><label class="label" for="pick-cargo">Cargo</label><select id="pick-cargo">${state.list.map(c => `<option value="${esc(c.slug)}"${c.slug === state.cargo.slug ? ' selected' : ''}>${esc(c.name)}</option>`).join('')}</select></div>
+    <div class="field"><label class="label" for="pick-route">Route</label><select id="pick-route">${state.route ? '' : '<option value="" selected>No route chosen</option>'}${routeOpts}</select></div>
+  </form>`;
+}
+function go(cargo, route) {
+  const q = new URLSearchParams(location.search);
+  q.delete('share'); q.set('cargo', cargo); if (route) q.set('route', route); else q.delete('route');
+  location.href = `${location.pathname}?${q}`;
+}
+function wirePicker(root) {
+  const c = root.querySelector('#pick-cargo'), r = root.querySelector('#pick-route');
+  const change = () => go(c.value, r.value);
+  c?.addEventListener('change', change); r?.addEventListener('change', change);
+}
+
+function errorHtml() {
+  const list = state.list.length && !state.share
+    ? `<p class="label">Available cargo</p><ul class="list">${state.list.map(c => `<li><a href="?cargo=${encodeURIComponent(c.slug)}&amp;route=${encodeURIComponent(DEFAULT_ROUTE)}">${esc(c.name)}</a></li>`).join('')}</ul>` : '';
+  return `<section class="panel state" role="alert"><h2>Passport not loaded</h2><p class="err">${esc(state.error)}</p>${list}
+    <div class="actions"><button class="btn btn--primary" id="retry">Try again</button><a class="btn" href="${esc(siteHref('/'))}">Back to the site</a></div></section>`;
+}
+
 function render() {
   const app = document.getElementById('app');
-  if (state.error) { app.innerHTML = `<p class="msg err">${esc(state.error)}</p>`; return; }
+  if (state.error) {
+    app.innerHTML = errorHtml();
+    app.querySelector?.('#retry')?.addEventListener('click', () => location.reload());
+    return;
+  }
   if (!state.cargo) return;
+  document.title = `${state.cargo.name} · Cargo Passport`;
+  const here = document.getElementById('nav-app'); if (here) here.href = location.pathname + location.search;
   // Screen 1 (after the QR scan) first; "More details" (#details) opens screen 2.
   window.scrollTo?.(0, 0);
   if (location.hash === '#details') {
-    app.innerHTML = '<section class="frame" id="details" aria-label="Fire evidence and response"></section>';
+    app.innerHTML = '<section class="screen" id="details" aria-label="Fire evidence and response"></section>';
     renderDetails(document.getElementById('details'));
   } else {
-    app.innerHTML = '<section class="frame" id="passport" aria-label="Cargo passport"></section>';
+    app.innerHTML = '<section class="screen" id="passport" aria-label="Cargo passport"></section>';
     renderOverview(document.getElementById('passport'));
   }
 }
@@ -319,7 +327,7 @@ function render() {
 const cargoId = c => state.share ? `share ${esc(state.share.slug)} · v${esc(c.config_version)}` : `${esc(c.slug)} · v${esc(c.config_version)}`;
 const envName = id => state.envs[id]?.name ?? id ?? 'Not set';
 const shortName = id => SHORT[id] ?? envName(id);
-const MASS_TINTS = ['#ff8c1a', '#ffb366', '#ffd3a6', '#c97a2e', '#8a5a2b', '#5c4632'];
+const MASS_TINTS = ['#ff8c1a', '#ffa143', '#c5d0e0', '#9fb0c8', '#6b7c96', '#22385c'];
 
 function setFocus(i) {
   state.focus = state.focus === i ? null : i;
@@ -344,37 +352,45 @@ function renderOverview(el) {
   const c = state.cargo, cur = state.envs[state.current], dest = state.envs[state.dest];
   const total = c.components.reduce((s, k) => s + (+k.mass_share || 0), 0);
   el.innerHTML = `
-    <h2 class="frame-title">Cargo passport</h2>
+    ${pickerHtml()}
     <div class="ov">
-      <section class="card" aria-label="Cargo">
+      <section class="panel" aria-label="Cargo">
+        <h2>Cargo passport</h2>
         <div class="mono small">ID ${cargoId(c)}</div>
         <h1>${esc(c.name)}</h1>
-        <div class="small">${esc(c.purpose)}</div>
+        <p class="small">${esc(c.purpose)}</p>
         <ul class="items">${c.components.map((k, i) => `<li data-comp="${i}"><span>${esc(k.name)} · ${esc(k.original_label)}</span><span>${k.mass_share != null ? pct(k.mass_share) : 'mass unknown'}</span></li>`).join('')}</ul>
         <div class="mass" aria-hidden="true">${c.components.map((k, i) => `<i style="flex:${+k.mass_share || 0};background:${MASS_TINTS[i % MASS_TINTS.length]}" title="${esc(k.name)} ${k.mass_share != null ? pct(k.mass_share) : ''}"></i>`).join('')}</div>
-        <div class="small" style="margin-top:8px">${c.components.length} objects · share of cargo mass${total ? ` (total ${pct(total)})` : ''} · ${esc(c.provenance)} cargo</div>
+        <p class="small" style="margin-top:var(--space-1)">${c.components.length} objects · share of cargo mass${total ? ` (total ${pct(total)})` : ''} · ${esc(c.provenance)} cargo</p>
       </section>
       <div class="side">
-        <a class="card details" href="#details"><h3>More details</h3><div class="big">Fire evidence &amp; response →</div><div id="dest-summary" class="small">Loading evidence…</div></a>
-        <section class="card"><h3>Current location</h3><div class="big">${esc(envName(state.current))}</div>
+        <a class="panel go" href="#details"><h2>More details</h2><div class="value value--accent">Fire evidence &amp; response →</div><div id="dest-summary" class="marks small">Loading evidence…</div></a>
+        <section class="panel"><h2>Current location</h2><div class="value">${esc(envName(state.current))}</div>
           <div class="small">${cur ? `${esc(cur.maturity)} · gravity ${esc(gravityText(cur))}` : ''}</div></section>
-        <section class="card"><h3>Final destination</h3><div class="big">${esc(envName(state.dest))}</div>
+        <section class="panel"><h2>Final destination</h2><div class="value">${esc(envName(state.dest))}</div>
           <div class="small">${dest ? `${esc(dest.maturity)} · gravity ${esc(gravityText(dest))}` : ''}${state.route ? ` · route ${esc(state.route.id)} (${esc(state.route.status)})` : ''}</div></section>
       </div>
-    </div>`;
+    </div>
+    <div id="read"></div>`;
   wireFocus(el);
-  if (state.dest) compare(state.dest).then(r => {
+  wirePicker(el);
+  const readBox = () => document.getElementById('read');
+  const paintRead = (r, curR) => { const box = readBox(); if (box) box.innerHTML = readPanel(ctxFor(r, {}, curR)); };
+  paintRead(null);
+  if (state.dest) Promise.all([compare(state.dest), state.current ? compare(state.current).catch(() => null) : null]).then(([r, curR]) => {
     const s = r.coverage.fire.summary, box = document.getElementById('dest-summary');
-    if (box) box.innerHTML = `<span class="pill" style="color:var(--found)">fire evidence ${s.evidence_found}/${s.denominator} at destination</span>`
-      + (s.gap ? `<span class="pill" style="color:var(--gap)">${s.gap} gap${s.gap > 1 ? 's' : ''}</span>` : '')
-      + `<span class="pill" style="color:var(--gap)">assembly ${esc(STATUS[r.coverage.fire.assembly.status]?.[0].toLowerCase() ?? r.coverage.fire.assembly.status)}</span>`;
+    if (box) box.innerHTML = `<span class="mk mk--found">fire evidence ${s.evidence_found}/${s.denominator} at destination</span>`
+      + (s.gap ? `<span class="mk mk--gap">${s.gap} gap${s.gap > 1 ? 's' : ''}</span>` : '')
+      + `<span class="mk mk--gap">assembly ${esc(STATUS[r.coverage.fire.assembly.status]?.[0].toLowerCase() ?? r.coverage.fire.assembly.status)}</span>`;
+    paintRead(r, curR);
   }).catch(e => { const box = document.getElementById('dest-summary'); if (box) box.textContent = 'Evidence unavailable: ' + e.message; });
+  else { const box = document.getElementById('dest-summary'); if (box) box.textContent = 'This cargo has no route yet: choose one above.'; }
 }
 
 function customEditor() {
   if (state.selected !== 'custom') return '';
   const cu = state.custom, opts = Object.values(state.envs).map(e => `<option value="${esc(e.id)}"${e.id === cu.base ? ' selected' : ''}>${esc(e.name)}</option>`).join('');
-  return `<div class="card custom" role="group" aria-label="Custom conditions">
+  return `<div class="panel custom" role="group" aria-label="Custom conditions">
     <div class="base">Based on <select id="custom-base" aria-label="Base environment (sets gravity)">${opts}</select>
       <span>Gravity follows the base environment. Slider values are your scenario, not measurements.</span></div>
     ${SLIDERS.map(s => { const v = cu.overrides[s.dim] != null ? +(cu.overrides[s.dim] / s.scale).toFixed(2) : s.def;
@@ -395,10 +411,10 @@ function startCustom() {
 function envChips() {
   // Chips for the route ends and the main space environments; the rest sit in a compact menu.
   const ids = [...new Set([state.current, state.dest, ...CHIP_ENVS, state.selected !== 'custom' ? state.selected : null])].filter(id => id && state.envs[id]);
-  const chips = ids.map(id => `<button class="chip${id === state.current ? ' here' : ''}" aria-pressed="${id === state.selected}" data-env="${esc(id)}">${id === state.current ? '● ' : ''}${esc(shortName(id))}${id === state.current ? ' (current)' : ''}</button>`).join('');
+  const chips = ids.map(id => `<button class="btn${id === state.current ? ' here' : ''}" aria-pressed="${id === state.selected}" data-env="${esc(id)}">${id === state.current ? '● ' : ''}${esc(shortName(id))}${id === state.current ? ' (current)' : ''}</button>`).join('');
   const rest = Object.values(state.envs).filter(e => !ids.includes(e.id));
   const menu = rest.length ? `<select id="more-env" aria-label="More environments"><option value="">More environments…</option>${rest.map(e => `<option value="${esc(e.id)}">${esc(e.name)}</option>`).join('')}</select>` : '';
-  return `<span class="small">Environment</span>${chips}<button class="chip" aria-pressed="${state.selected === 'custom'}" id="custom-chip">Custom…</button>${menu}`;
+  return `<span class="label">Environment</span>${chips}<button class="btn" aria-pressed="${state.selected === 'custom'}" id="custom-chip">Custom…</button>${menu}`;
 }
 
 const selKey = () => JSON.stringify([state.selected, selection().envId, selection().overrides, state.useState]);
@@ -408,11 +424,11 @@ async function renderDetails(el) {
   if (!el) return;
   const c = state.cargo, { envId, overrides } = selection();
   el.innerHTML = `
-    <div class="dhead"><span><a href="#">← ${cargoId(c)}</a> · ${esc(c.name)} · Fire evidence</span>
-      <label>Cargo is <select id="use-state" aria-label="Kept or unpacked (use state)">${USE_STATES.map(u => `<option value="${u}"${u === state.useState ? ' selected' : ''}>${KEPT[u]}</option>`).join('')}</select></label></div>
+    <div class="crumbs"><span><a href="#">← ${cargoId(c)}</a> · ${esc(c.name)} · Fire evidence</span>
+      <label class="use"><span class="label">Cargo is</span><select id="use-state" aria-label="Kept or unpacked (use state)">${USE_STATES.map(u => `<option value="${u}"${u === state.useState ? ' selected' : ''}>${KEPT[u]}</option>`).join('')}</select></label></div>
     <div class="env">${envChips()}</div>
     ${customEditor()}
-    <div id="body"><p class="msg">Comparing evidence…</p></div>`;
+    <div id="body" class="screen" aria-busy="true"><p class="msg" role="status">Comparing evidence…</p></div>`;
   el.querySelectorAll('[data-env]').forEach(b => b.addEventListener('click', () => { state.selected = b.dataset.env; rerender(); }));
   el.querySelector('#more-env')?.addEventListener('change', e => { if (e.target.value) { state.selected = e.target.value; rerender(); } });
   el.querySelector('#custom-chip')?.addEventListener('click', () => { startCustom(); rerender(); });
@@ -428,14 +444,16 @@ async function renderDetails(el) {
   try {
     [selR, curR] = await Promise.all([compare(envId, overrides), state.current ? compare(state.current).catch(() => null) : null]);
   } catch (e) {
-    if (selKey() === token) document.getElementById('body').innerHTML = `<p class="msg err">${esc(e.message)}</p>`;
+    if (selKey() === token) document.getElementById('body').innerHTML = `<section class="panel state" role="alert"><h2>Comparison failed</h2><p class="err">${esc(e.message)}</p><div class="actions"><button class="btn btn--primary" id="retry-cmp">Try again</button></div></section>`;
+    document.getElementById('body')?.querySelector?.('#retry-cmp')?.addEventListener('click', () => rerender());
     return;
   }
   if (selKey() !== token) return; // the user picked something else while this was loading
   const body = document.getElementById('body');
   body.innerHTML = diffStrip(curR, selR) + `<div class="dg">${donutPanel(selR)}${extinguisherPanel(selR)}${evidencePanel(selR)}</div>
     <div class="lower">${askPanel(selR)}${actionsPanel()}</div>
-    <div class="foot">${esc(c.provenance).toUpperCase()} CARGO · EVIDENCE COMPARISON · not a safety approval</div>`;
+    ${readPanel(ctxFor(selR, { envs: [state.envs[state.current], state.envs[state.dest], selR.environment] }, curR))}
+    <div class="foot-note">${esc(c.provenance)} cargo · evidence comparison · not a safety approval</div>`;
   wireLower(body);
   wireFocus(body);
   if (state.focus != null) { const f = state.focus; state.focus = null; setFocus(f); }
@@ -469,15 +487,15 @@ function careRow(r) {
       ? `⚠ Extra care needed: ${pts.length} review point${pts.length > 1 ? 's' : ''} for cargo ${esc(KEPT[state.useState] || state.useState)} at ${where}`
       : `No open review points for cargo ${esc(KEPT[state.useState] || state.useState)} at ${where}`}</span>
     ${pts.length ? `<ul>${pts.map(p => `<li>${esc(p)}</li>`).join('')}</ul>` : ''}
-    <div class="small" style="margin-top:6px">Based on the evidence comparison only. Whether the cargo may be kept or unpacked here is decided by the responsible safety review, not this app.</div></div>`;
+    <div class="small">Based on the evidence comparison only. Whether the cargo may be kept or unpacked here is decided by the responsible safety review, not this app.</div></div>`;
 }
 
 function diffStrip(cur, sel) {
   const custom = state.selected === 'custom';
   const name = r => custom && r === sel ? `Custom (${esc(shortName(r.environment.id))})` : esc(shortName(r.environment.id));
-  if (!cur) return `<div class="card diff"><div class="lead">No current location known for this cargo.</div>${careRow(sel)}</div>`;
+  if (!cur) return `<div class="panel diff"><div class="lead">No current location known for this cargo.</div>${careRow(sel)}</div>`;
   if (cur.environment.id === sel.environment.id && !custom) {
-    return `<div class="card diff"><div class="lead">This is the cargo's current location<b>${name(sel)}</b></div>${
+    return `<div class="panel diff"><div class="lead">This is the cargo's current location<b>${name(sel)}</b></div>${
       conditionChanges(sel, sel).map(r => `<div>${r.label}<b>${esc(r.to)}</b></div>`).join('')}${careRow(sel)}</div>`;
   }
   const rows = conditionChanges(cur, sel), changed = rows.filter(r => !r.same);
@@ -485,7 +503,7 @@ function diffStrip(cur, sel) {
   const ev = evidenceChanges(cur, sel);
   const tags = (sel.incomplete_dimensions.length ? `<span class="tag">unknown: ${esc(sel.incomplete_dimensions.map(d => d.replace(/_.*/, '')).join(', '))}</span>` : '')
     + (custom ? '<span class="tag">your values</span>' : '');
-  return `<div class="card diff">
+  return `<div class="panel diff">
     <div class="lead">Changes from current location<b>${name(cur)} → ${name(sel)}</b>${tags}</div>
     ${changed.map(r => `<div>${r.label}<b>${esc(r.from)} → ${esc(r.to)}${r.dir ? ` <span class="${r.dir}" aria-label="${r.dir === 'up' ? 'increase' : 'decrease'}">${r.dir === 'up' ? '▲' : '▼'}</span>` : ''}</b></div>`).join('')}
     ${same.length ? `<div>${same.map(r => r.label).join(' · ')}<b class="same">${same.map(r => esc(r.to)).join(' · ')} — no change</b></div>` : ''}
@@ -499,14 +517,14 @@ function donutPanel(r) {
   const cov = r.coverage.fire, statuses = cov.components.map(x => x.status);
   const segs = donutSegments(r.components, statuses);
   const s = cov.summary;
-  return `<section class="card"><h2>Cargo fire evidence</h2>
+  return `<section class="panel"><h2>Cargo fire evidence</h2>
     <svg class="donut" viewBox="0 0 200 200" width="220" height="220" style="display:block;margin:0 auto" role="img" aria-label="Fire evidence for ${s.evidence_found} of ${s.denominator} components">
       <g transform="rotate(-90 100 100)" fill="none" stroke-width="22">
         <circle cx="100" cy="100" r="80" stroke="var(--line)"/>
         ${segs.map((g, i) => `<circle class="seg" data-comp="${i}" cx="100" cy="100" r="80" stroke="${STATUS[g.status]?.[1] ?? 'var(--none)'}" stroke-dasharray="${g.dash.toFixed(1)} 600" stroke-dashoffset="${g.offset.toFixed(1)}"><title>${esc(r.components[i].name)}: ${esc(STATUS[g.status]?.[0] ?? g.status)}</title></circle>`).join('')}
       </g>
-      <text x="100" y="106" text-anchor="middle" font-size="40" font-weight="800" fill="${s.gap ? 'var(--fg)' : 'var(--found)'}">${s.evidence_found}/${s.denominator}</text>
-      <text x="100" y="128" text-anchor="middle" font-size="9.5" letter-spacing="1.6" fill="var(--muted)">WITH FIRE EVIDENCE</text>
+      <text x="100" y="106" text-anchor="middle" font-size="40" font-weight="500" fill="${s.gap ? 'var(--fg)' : 'var(--found)'}">${s.evidence_found}/${s.denominator}</text>
+      <text x="100" y="128" text-anchor="middle" font-size="8.5" letter-spacing="1.1" fill="var(--muted)" style="font-family:var(--mono)">WITH FIRE EVIDENCE</text>
     </svg>
     <ul class="legend">${r.components.map((k, i) => {
       const st = cov.components[i], n = st?.counts, col = STATUS[st?.status]?.[1] ?? 'var(--none)';
@@ -514,16 +532,16 @@ function donutPanel(r) {
     }).join('')}
       <li><i style="background:${STATUS[cov.assembly.status]?.[1]}"></i><span>Whole assembly<br><span class="small">${esc(cov.assembly.reason)}</span></span><em style="color:${STATUS[cov.assembly.status]?.[1]}">${esc(STATUS[cov.assembly.status]?.[0] ?? cov.assembly.status)}</em></li>
     </ul>
-    <div class="small" style="margin-top:8px">Slice size = mass share · colour = evidence status. ${s.gap} gap(s), ${s.unassessed} not assessed, of ${s.denominator} ${esc(s.denominator_label)}.</div>
+    <div class="small" style="margin-top:var(--space-1)">Slice size = mass share · colour = evidence status. ${s.gap} gap(s), ${s.unassessed} not assessed, of ${s.denominator} ${esc(s.denominator_label)}.</div>
   </section>`;
 }
 
 function extinguisherPanel(r) {
-  return `<section class="card"><h2>Extinguisher per object</h2>
+  return `<section class="panel"><h2>Extinguisher per object</h2>
     <table><thead><tr><th>Object</th><th>Extinguisher</th><th>Alternative</th></tr></thead><tbody>
     ${r.components.map((k, i) => { const [a, b] = extinguisher(k, state.materials); return `<tr data-comp="${i}"><td>${esc(k.name)}</td><td class="agent">${a}</td><td>${b}</td></tr>`; }).join('')}
     </tbody></table>
-    <div class="small" style="margin-top:10px">Reference only — follow the vehicle's approved procedure. By material type, not from PSI data.</div>
+    <div class="small" style="margin-top:var(--space-2)">Reference only — follow the vehicle's approved procedure. By material type, not from PSI data.</div>
   </section>`;
 }
 
@@ -548,13 +566,13 @@ function evidencePanel(r) {
     return `<details class="ev" data-comp="${i}"><summary><b>${esc(title)}</b> <span class="tag mono">${esc(badge)}</span><span class="tag">${esc(k.name)}</span><span class="tag">${esc(top.evidence_class)}</span>
         <span class="line">${esc(k.original_label)}: ${esc(outcomeText(o))}${o.gravity_regime ? ` (${esc(gravity(o.gravity_regime))})` : ''}.</span></summary>
       <div class="more"><div><span class="c-match">${n.match} match</span> · <span class="c-differs">${n.differs} differs</span> · <span class="c-unknown">${n.unknown} unknown</span> vs this environment</div>
-        <div>${esc(top.reasons.slice(1).join('; '))}</div><div>${link(o.source_id)}</div></div></details>`;
+        <div>${esc(top.reasons.slice(1).join('; '))}</div><div>${link(o.source_id)}</div>${recordLinks(o.investigation_accession || o.test_method)}</div></details>`;
   }).join('');
   const analogues = new Set(r.components.flatMap(k => k.ranked.filter(x => x.evidence_class === 'analogue').map(x => x.observation_id))).size;
-  return `<section class="card"><h2>Evidence · NASA sources</h2>${rows}
-    ${analogues ? `<div class="ev small" style="padding:9px 0">ACME BRE gas-burner analogues: ${analogues} record${analogues > 1 ? 's' : ''}, kept separate — not material evidence.</div>` : ''}
-    ${r.findings.map(f => `<div class="ev" style="padding:9px 0">${esc(f.claim)}<br><span class="small">${link(f.source_id)}</span></div>`).join('')}
-    <div class="small" style="margin-top:8px">Observed results · tap a row for conditions &amp; DOI</div>
+  return `<section class="panel"><h2>Evidence · NASA sources</h2>${rows}
+    ${analogues ? `<div class="ev small" style="padding:var(--space-1) 0">ACME BRE gas-burner analogues: ${analogues} record${analogues > 1 ? 's' : ''}, kept separate — not material evidence.</div>` : ''}
+    ${r.findings.map(f => `<div class="ev" style="padding:var(--space-1) 0">${esc(f.claim)}<br><span class="small">${link(f.source_id)}</span></div>`).join('')}
+    <div class="small" style="margin-top:var(--space-1)">Observed results · tap a row for conditions &amp; DOI</div>
     <details class="lim"><summary>${esc(r.limitations[0] ?? 'Limitations')}</summary><ul>${r.limitations.slice(1).map(l => `<li>${esc(l)}</li>`).join('')}</ul></details>
   </section>`;
 }
@@ -564,7 +582,7 @@ function answerHtml(ex) {
   if (!ex) return '<p class="small">Ask for a sourced explanation of the selected object\'s evidence in this environment. Leave the question empty for a summary; a question lets the model look up more records (slower).</p>';
   if (ex.error) return `<p class="err">${esc(ex.error)}</p>`;
   const e = ex.explanation;
-  const foot = `<p class="small" style="margin-top:8px">${esc(ex.disclosure)}${e.cached ? ' <span class="tag">cached</span>' : ''}</p>`;
+  const foot = `<p class="small" style="margin-top:var(--space-1)">${esc(ex.disclosure)}${e.cached ? ' <span class="tag">cached</span>' : ''}</p>`;
   if (e.status === 'unavailable') return `<p>SI explanation unavailable (${esc(e.reason)}). The comparisons above still apply.</p>` + foot;
   if (e.status === 'error') return `<p class="err">The SI service failed (${esc(e.reason)}). Try again; the comparisons above still apply.</p>` + foot;
   if (e.status === 'rejected') return `<p class="err">Explanation withheld: the model cited records it was not given (${esc((e.invalid_source_ids || []).join(', ') || 'uncited sentences')}).</p>` + foot;
@@ -576,11 +594,11 @@ function answerHtml(ex) {
 
 function askPanel(r) {
   const a = state.ask;
-  return `<section class="card" aria-live="polite"><h2>Ask about this evidence</h2>
+  return `<section class="panel" aria-live="polite"><h2>Ask about this evidence</h2>
     <form class="ask" id="ask-form">
       <select id="ask-component" aria-label="Object">${r.components.map((k, i) => `<option value="${i}"${i === a.component ? ' selected' : ''}>${esc(k.name)}</option>`).join('')}</select>
       <input id="ask-question" maxlength="500" placeholder="Optional question, e.g. Does this evidence still apply at the lunar base?" value="${esc(a.question)}" aria-label="Question">
-      <button class="btn primary" type="submit"${a.busy ? ' disabled' : ''}>${a.busy ? 'Asking…' : 'Explain'}</button>
+      <button class="btn btn--primary" type="submit"${a.busy ? ' disabled' : ''}>${a.busy ? 'Asking…' : 'Explain'}</button>
     </form>
     <div class="suggest">${suggestions().map(q => `<button type="button" data-q="${esc(q)}">${esc(q)}</button>`).join('')}</div>
     <div id="answer">${a.busy ? '<p class="small">Asking Eustella… questions with lookups take up to ~10 s.</p>' : answerHtml(a.answer)}</div>
@@ -595,8 +613,8 @@ function suggestions() {
 function actionsPanel() {
   const token = state.share && store.get('share:' + state.share.slug);
   const link = state.share ? `${location.origin}${location.pathname}?share=${state.share.slug}` : '';
-  return `<section class="card actions"><h2>Passport</h2>
-    <div class="row"><button class="btn primary" id="download">Download passport (JSON)</button></div>
+  return `<section class="panel actions-col"><h2>Passport</h2>
+    <div class="row"><button class="btn btn--primary" id="download">Download passport (JSON)</button></div>
     <div class="row"><button class="btn" id="share">${state.share ? (token ? 'Save changes to link' : 'Save as new link') : 'Create share link'}</button></div>
     ${link ? `<input readonly value="${esc(link)}" aria-label="Share link" onclick="this.select()">
       <span class="small">${token ? 'You can edit this link from this browser.' : 'View only in this browser.'}</span>` : '<span class="small">A link saves this cargo and scenario; anyone with it can view.</span>'}

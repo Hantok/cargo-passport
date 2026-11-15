@@ -1,0 +1,140 @@
+{
+  "_about": "Links from the app back to the site. site: origin of the site, empty while the app and the site share one host. pages: where to send the reader (kind story, section or examples; basis lists the PSI accessions of the story, checked against site/data/stories.json by content-map.test.cjs). records: test methods that a page explains. topics: when a pages link is shown (reason is a short label of the topic) (always; text on the cargo components; gravity of an environment in view; dims = conditions that differ or are unknown; gap; assembly).",
+  "site": "",
+  "pages": {
+    "air": {
+      "title": "The air differs by place",
+      "href": "/#beat-air",
+      "kind": "section",
+      "about": "Oxygen and pressure differ between places on the route, and so does what burns."
+    },
+    "passport": {
+      "title": "The passport for one item",
+      "href": "/#beat-passport",
+      "kind": "section",
+      "about": "How a passport lists each part of one item and what has no test record."
+    },
+    "limits": {
+      "title": "What this page does not show",
+      "href": "/#limits",
+      "kind": "section",
+      "about": "What the home page leaves out, and why a gap is not a verdict."
+    },
+    "quiet-fire": {
+      "title": "The quiet fire: a flame you can barely see",
+      "href": "/stories/quiet-fire/",
+      "kind": "story",
+      "basis": [
+        "PSI-25",
+        "PSI-159",
+        "PSI-39",
+        "PSI-69",
+        "PSI-102",
+        "PSI-101",
+        "PSI-98"
+      ],
+      "about": "Fire in microgravity: a flame that is easy to miss, and what the tests show."
+    },
+    "quiet-fire-draught": {
+      "title": "No up, no draught",
+      "href": "/stories/quiet-fire/#beat-why-differs",
+      "kind": "story",
+      "about": "Why a flame in microgravity has no up and no draught."
+    },
+    "quiet-fire-unknown": {
+      "title": "What nobody knows yet",
+      "href": "/stories/quiet-fire/#unknown",
+      "kind": "story",
+      "about": "What nobody has tested yet, kept visible."
+    },
+    "stories": {
+      "title": "All stories",
+      "href": "/stories/",
+      "kind": "examples",
+      "about": "Other examples and the stories behind the evidence."
+    }
+  },
+  "records": {
+    "astm_d2863": [
+      "air"
+    ],
+    "std6001_test1": [
+      "air"
+    ],
+    "std6001_test4": [
+      "air"
+    ]
+  },
+  "topics": [
+    {
+      "id": "fire-in-microgravity",
+      "when": {
+        "gravity": [
+          "microgravity"
+        ]
+      },
+      "pages": [
+        "quiet-fire",
+        "quiet-fire-draught"
+      ]
+    },
+    {
+      "id": "oxygen-pressure",
+      "when": {
+        "dims": [
+          "o2",
+          "pressure"
+        ]
+      },
+      "pages": [
+        "air"
+      ]
+    },
+    {
+      "id": "silicone",
+      "when": {
+        "text": "silicone|gasket|seal"
+      },
+      "pages": [
+        "air"
+      ]
+    },
+    {
+      "id": "batteries",
+      "when": {
+        "text": "batter|lithium|li-ion"
+      },
+      "pages": [
+        "air"
+      ]
+    },
+    {
+      "id": "gaps",
+      "when": {
+        "gap": true
+      },
+      "pages": [
+        "quiet-fire-unknown",
+        "limits"
+      ]
+    },
+    {
+      "id": "assembly",
+      "when": {
+        "assembly": true
+      },
+      "pages": [
+        "passport"
+      ]
+    },
+    {
+      "id": "examples",
+      "when": {
+        "always": true
+      },
+      "pages": [
+        "stories"
+      ]
+    }
+  ]
+}

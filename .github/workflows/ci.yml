@@ -50,6 +50,8 @@ jobs:
           node-version: 22
       - name: Frontend tests (fetch is mocked, no backend needed)
         run: node frontend/index.test.cjs
+      - name: Links from the app back to the site point at pages and anchors that exist
+        run: node frontend/content-map.test.cjs
 
   site:
     runs-on: ubuntu-latest
