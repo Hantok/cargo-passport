@@ -1647,7 +1647,7 @@
     "landing_url": "https://standards.nasa.gov/standard/JSC/JSC-29353",
     "doc_url": "https://standards.nasa.gov/system/files/tmp/JSC%2029353D%20Flammability%20Configuration%20Analysis%20for%20Spacecraft%20Applications.pdf",
     "doi": null,
-    "locator": "Section 5.2, p. 13 (the earlier test and its 25 W conclusion are in the preceding sentence of the same paragraph)",
+    "locator": "Section 5.2, p. 13",
     "material": "Not material-specific (a general statement)",
     "conditions": {
       "o2_percent": 34,
