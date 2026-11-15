@@ -1,5 +1,5 @@
-// Facts backed by evidence. Every element with data-evidence="id1 id2" is marked as a fact (class "fact", an
-// accent underline). Hover, focus or tap shows a tooltip with the verbatim quote, the source and a link to the
+// Facts backed by evidence. Every element with data-evidence="id1 id2" is marked as a fact (class "fact", plain text).
+// Only its small footnote marker (sup.fn) is visible. Hover, focus or tap on the marker shows a tooltip with the verbatim quote, the source and a link to the
 // original web page; <ol data-evidence-list> gets the source list. The generated pages already carry plain
 // footnote numbers (sup.fn) and the same source list, so they read without JavaScript.
 
@@ -114,7 +114,7 @@ function hideTip(delay = 0) {
 }
 
 function wireTips() {
-  const fact = (event) => event.target.closest?.(".fact");
+  const fact = (event) => event.target.closest?.("sup.fn")?.closest(".fact");
   const point = (event) => ({ x: event.clientX, y: event.clientY });
   document.addEventListener("pointerover", (event) => {
     const el = fact(event);
@@ -122,22 +122,21 @@ function wireTips() {
   });
   document.addEventListener("pointerout", (event) => {
     const el = fact(event);
-    if (el && event.pointerType === "mouse" && !el.contains(event.relatedTarget)) hideTip(250);
+    if (el && event.pointerType === "mouse" && !event.target.closest("sup.fn").contains(event.relatedTarget)) hideTip(250);
   });
   document.addEventListener("click", (event) => {
     const el = fact(event);
-    if (el && event.target.closest("a") && !event.target.closest("sup.fn")) return;
     if (!el) {
       if (!event.target.closest?.(".fact-tip")) hideTip();
       return;
     }
-    if (event.target.closest("sup.fn")) event.preventDefault();
+    event.preventDefault();
     if (tip.owner === el && tip.node && !tip.node.hidden && event.pointerType !== "mouse" && event.detail !== 0) hideTip();
     else showTip(el, point(event));
   });
   document.addEventListener("focusin", (event) => {
     const el = fact(event);
-    if (el?.matches(":focus-visible")) showTip(el, null);
+    if (el?.querySelector("sup.fn a:focus-visible")) showTip(el, null);
   });
   document.addEventListener("focusout", (event) => {
     if (fact(event)) hideTip(150);
@@ -174,7 +173,6 @@ function decorate({ records, numbers, list }, element) {
     }
   }
   element.classList.add("fact");
-  if (!element.matches("a, button, [tabindex]")) element.tabIndex = 0;
   if (!element.querySelector(":scope > sup.fn")) {
     const ids = element.dataset.evidence.split(/\s+/).filter((id) => numbers.has(id));
     element.append(...ids.map((id) => h("sup", { className: "fn" }, h("a", { href: `#src-${numbers.get(id)}` }, String(numbers.get(id))))));

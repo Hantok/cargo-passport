@@ -98,7 +98,7 @@ const openingScene = (story) => html`<section class="scene" id="hook" aria-label
         </div>
       </div>
       <figure class="hook__art">
-        <img src="assets/images/hero.webp" width="1500" height="1000" alt="The Five-Body Problem team around a cargo crate marked Cargo Passport, inside a space station module">
+        <img src="assets/images/hero-cargo.svg" width="1500" height="1000" alt="The same cargo crate with its passport card, shown for two environments: the space station in microgravity and a lunar base">
       </figure>
     </div>
   </section>`;
