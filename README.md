@@ -16,11 +16,11 @@ NASA Space Apps Challenge 2026 · **Flame in Freefall** · Vienna 🇦🇹 · Te
 
 ## 🎬 Watch the 30-second video
 
-<a href="media/cargo-passport-video.mp4"><img src="media/video-poster.jpg" alt="Play the Cargo Passport video" width="860"></a>
+<a href="https://youtu.be/5JOlN18c3TY"><img src="media/video-poster.jpg" alt="Play the Cargo Passport video on YouTube" width="860"></a>
 
-▶️ [Play the video](media/cargo-passport-video.mp4) (MP4, 30 s, English subtitles)
+▶️ **[Watch on YouTube](https://youtu.be/5JOlN18c3TY)** · [MP4 in this repo](media/cargo-passport-video.mp4) (30 s, English subtitles)
 
-🌐 **[Live demo: cargo.qwadratic.me](https://cargo.qwadratic.me)** · [API docs](https://cargo.qwadratic.me/docs)
+🌐 **[Live demo: cargo.qwadratic.me](https://cargo.qwadratic.me)** · [API docs](https://cargo.qwadratic.me/docs) · 🖥️ [Presentation](presentation/) (4 slides with the video: open `presentation/index.html`, arrow keys to move, F for full screen)
 
 ---
 
@@ -36,19 +36,29 @@ Today that gap is invisible to the crew who pack, ship and store the cargo.
 
 | | |
 |---|---|
-| 🧾 **A passport for every shipment** | Each item and the materials it's made of, behind one QR code. |
+| 🧾 **A passport for every shipment** | Each item and the materials it's made of, on one page that a QR code on the crate can open (`?cargo=<item>&route=<route>`). |
 | 🛰️ **Follow the journey** | Earth → ISS → Moon: compare oxygen, pressure and gravity at every stop. |
-| 🔬 **See what NASA tested** | Matches each material to NASA PSI experiments (BASS-II, Saffire, …). |
-| 🧠 **SI assesses the evidence** | Explains what applies, with sources, and flags what is untested. No invented results. |
+| 🔬 **See what NASA tested** | Compares each material with NASA test records: PSI microgravity combustion experiments and NASA-STD-6001 / NTRS material tests. |
+| 📊 **Evidence in order** | Test records are ordered by how closely their conditions match the destination. This is a reading order, not a risk score. |
+| 🧠 **SI explains the evidence** | Explains the comparison in plain language, cites the records it used, and flags what is untested. No invented results. |
 | 🚩 **Gaps stay visible** | "Conditions differ" and "no evidence" are shown, never hidden behind a score. |
 
 ## ⚙️ How it works
 
-1. **Evidence** · NASA space experiments, drop-tower tests and MAPTIS material data.
-2. **SI assesses** · compares test conditions with the cargo's real journey and explains the findings with sources.
-3. **People decide** · how to ship, where to store, what to test next.
+1. **Evidence** · NASA PSI microgravity combustion records (24 investigations) and NASA-STD-6001 / NTRS material test records.
+2. **Compare (code)** · for every stop on the route, the test's oxygen, pressure, gravity and airflow are compared with the destination: *matches*, *differs* or *unknown*. Records are ordered exact → related → analogue, then by how many conditions differ or are unknown. This step is deterministic code, no SI.
+3. **SI explains** · "Explain" summarises the comparison and cites the records behind every sentence. It adds no results and gives no emergency instructions.
+4. **People decide** · how to ship, where to store, what to test next.
 
 > SI assesses the evidence. **People make the call.**
+
+### How it answers the challenge
+
+| Challenge asks to… | Cargo Passport |
+|---|---|
+| **Summarize** NASA combustion findings | One passport per shipment: materials, route conditions and the NASA test records that apply |
+| **Rank** them | Evidence ordered by how well test conditions match the destination (exact → related → analogue), no safety score |
+| **Interpret** them for fire safety | SI explanation with a citation for every sentence; untested conditions stay visible |
 
 ## 👩‍🚀 Who it's for
 
@@ -74,9 +84,13 @@ NASA's own PSI records name submarines, high-altitude aircraft and better smoke 
 
 ## 📚 Data sources
 
-- **[NASA Physical Sciences Informatics (PSI)](https://psi.nasa.gov/physci/repo/search?q=combustion)**: BASS, BASS-II, Saffire-I–III, FLEX, SAME and more
+**Used in the app**
+- **[NASA Physical Sciences Informatics (PSI)](https://psi.nasa.gov/physci/repo/search?q=combustion)**: 24 combustion investigations, with experimental tables for 20 of them (BASS, BASS-II, Saffire-I–III, FLEX, SAME and more), in [`data/`](data/). 23 of the 24 records are CC0 1.0; please cite them by DOI (list below).
+- **NASA material test records**: [NASA-STD-6001](https://standards.nasa.gov/standard/NASA/NASA-STD-6001), NTRS papers and NASA technical documents (NESC TB 26-05, JSC 20793 Rev D, OCHMO-TB-008). A few manufacturer datasheets and one USDA study fill in material properties. Every source, with its URL, is in [`backend/seed/sources.yaml`](backend/seed/sources.yaml).
+
+**Reviewed, not loaded yet** (roadmap)
 - **Drop-tower experiments**: NASA BASS ground tests, [ZARM Bremen flame-spread dataset](https://zenodo.org/records/18479713)
-- **Materials**: [NASA MAPTIS](https://maptis.nasa.gov/) and NASA-STD-6001 (planned; access requires registration)
+- **Materials**: [NASA MAPTIS](https://maptis.nasa.gov/) (access requires registration)
 
 <details>
 <summary><b>NASA PSI records used (24 investigations, with DOIs)</b></summary>
@@ -91,7 +105,7 @@ NASA's own PSI records name submarines, high-altitude aircraft and better smoke 
 - **PSI-39** · CFI · [10.60555/m6pj-a914](https://doi.org/10.60555/m6pj-a914)
 - **PSI-47** · DAFT / DAFT-2 · [10.60555/ztgj-d202](https://doi.org/10.60555/ztgj-d202)
 - **PSI-60** · Computational and Experimental Analysis of SPICE Data Sets · [10.60555/mzjm-yv57](https://doi.org/10.60555/mzjm-yv57)
-- **PSI-62** · Concurrent Flame Spread Modeling using Flamelet Generated Manifolds in · [10.60555/e9xp-ex83](https://doi.org/10.60555/e9xp-ex83)
+- **PSI-62** · Concurrent Flame Spread Modeling using Flamelet Generated Manifolds in Microgravity with Comparison to BASS Experiments using Two-Color Tomography · [10.60555/e9xp-ex83](https://doi.org/10.60555/e9xp-ex83)
 - **PSI-68** · FLEX-2 · [10.60555/byp8-h018](https://doi.org/10.60555/byp8-h018)
 - **PSI-69** · FLEX · [10.60555/mbq8-0451](https://doi.org/10.60555/mbq8-0451)
 - **PSI-98** · SAFFIRE-I · [10.60555/0t15-1z43](https://doi.org/10.60555/0t15-1z43)
@@ -101,14 +115,51 @@ NASA's own PSI records name submarines, high-altitude aircraft and better smoke 
 - **PSI-102** · SAME · [10.60555/gd4k-8h62](https://doi.org/10.60555/gd4k-8h62)
 - **PSI-106** · SLICE · [10.60555/pm12-rg61](https://doi.org/10.60555/pm12-rg61)
 - **PSI-107** · SPICE · [10.60555/9kbh-e962](https://doi.org/10.60555/9kbh-e962)
-- **PSI-115** · Utilization of the Smoke Aerosol Measurement Experiment Data for Advan · [10.60555/q0v5-1v28](https://doi.org/10.60555/q0v5-1v28)
-- **PSI-117** · Effect of External Thermo-Convective Perturbation on Cool Flame Dynami · [10.60555/gz0q-b577](https://doi.org/10.60555/gz0q-b577)
-- **PSI-142** · Quantitative Studies of Cool Flame Transitions at Radiation / Stretch  · [10.60555/80qf-vj95](https://doi.org/10.60555/80qf-vj95)
+- **PSI-115** · Utilization of the Smoke Aerosol Measurement Experiment Data for Advanced Modeling and Simulation of Smoke Generation in Micro-Gravity · [10.60555/q0v5-1v28](https://doi.org/10.60555/q0v5-1v28)
+- **PSI-117** · Effect of External Thermo-Convective Perturbation on Cool Flame Dynamics: A Multidimensional Multi-Physics CFD Analysis · [10.60555/gz0q-b577](https://doi.org/10.60555/gz0q-b577)
+- **PSI-142** · Quantitative Studies of Cool Flame Transitions at Radiation / Stretch Extinction Using Counterflow Flames · [10.60555/80qf-vj95](https://doi.org/10.60555/80qf-vj95)
 - **PSI-159** · ACME CFI-G · [10.60555/cyt1-kh64](https://doi.org/10.60555/cyt1-kh64)
 
 </details>
 
 > ⚠️ **Not a safety verdict.** Cargo Passport organises evidence for review. It does not approve cargo for flight; that remains with the responsible safety authority. The shipment in the video is illustrative.
+
+## 🚀 Run it locally
+
+Needs Docker, [uv](https://docs.astral.sh/uv/) and Python 3.12+.
+
+```bash
+# 1. A local Postgres
+docker run -d --name cp-pg -e POSTGRES_USER=cargo -e POSTGRES_PASSWORD=cargo -e POSTGRES_DB=cargo -p 5432:5432 postgres:16
+export DATABASE_URL=postgresql+psycopg://cargo:cargo@localhost:5432/cargo
+export DATABASE_URL_DIRECT=$DATABASE_URL
+
+# 2. Schema and NASA data
+cd backend
+uv sync --frozen
+uv run alembic upgrade head
+uv run python -m app.ingest.load
+
+# 3. Start API and app on one origin
+uv run uvicorn serve:app --port 8000
+```
+
+Open **http://localhost:8000/frontend/** for the app and http://localhost:8000/docs for the API. "Explain" needs an SI key: set `SI_API_KEY` (Eustella AI, OpenAI-compatible; optional `SI_BASE_URL`, `SI_MODEL`). Without a key, everything else works and Explain says it is unavailable.
+
+Tests: `uv run pytest -q` in `backend/` (after the load step), and `node frontend/index.test.cjs`. More in [`backend/README.md`](backend/README.md) and [`backend/API.md`](backend/API.md).
+
+## 🗂️ What's in this repo
+
+| Folder | Contents |
+|---|---|
+| [`backend/`](backend/) | FastAPI API, Postgres schema (Alembic), NASA data ingest, evidence comparison ([`app/logic/compare.py`](backend/app/logic/compare.py)), SI Explain ([`app/si/explain.py`](backend/app/si/explain.py)), tests |
+| [`backend/seed/`](backend/seed/) | Curated NASA sources, materials, material tests, environments, routes and the illustrative cargo (YAML) |
+| [`frontend/`](frontend/) | The Cargo Passport app (one HTML file) |
+| [`data/`](data/) | NASA PSI investigations (JSON) and experimental tables (CSV) |
+| [`docs/`](docs/) | Concept, research notes, environment profiles, build plan |
+| [`prototype/`](prototype/) | Cargo environment map and cargo journey animation (rendered into the video) |
+| [`presentation/`](presentation/) | 4-slide deck with the video |
+| [`media/`](media/) | Video, poster and README images |
 
 ## 👥 Team Five-Body Problem
 
@@ -120,7 +171,11 @@ Built in Vienna at NASA Space Apps Challenge 2026.
 
 ## 🤖 SI disclosure
 
-The video narration is synthetic speech (Kokoro-82M TTS). The video visuals, music and the images in this README were produced with SI assistance. Every video frame and both README images carry a visible "SI-assisted" watermark. In the app, the "Explain" feature uses an SI model (Eustella AI) to explain the computed evidence comparison with sources; the comparison itself is computed in code from NASA data.
+- **Code and data:** the code, the data-normalisation scripts and the docs were written with SI coding assistants (Claude, Codex) and reviewed and tested by the team. The curated seed files in `backend/seed/` were compiled with SI assistance from the sources in `sources.yaml`; the cargo items are illustrative.
+- **Video and audio:** the narration is synthetic speech (Kokoro-82M TTS via HyperFrames). The visuals, the music and the narration script were produced with SI assistance. The opening line was written by the team. The MP4 metadata carries the same disclosure.
+- **Images:** the images in this README and in the presentation were produced with SI assistance. Every video frame and every SI-generated image carries a visible "SI-assisted" watermark.
+- **In the app:** the "Explain" feature uses an SI model (Eustella AI) to explain the computed evidence comparison with sources. The comparison itself is computed in code from NASA data.
+- **Idea:** the concept came from the team's brainstorm; SI tools helped organise it and check data feasibility.
 
 ## 📄 License
 
