@@ -50,3 +50,19 @@ jobs:
           node-version: 22
       - name: Frontend tests (fetch is mocked, no backend needed)
         run: node frontend/index.test.cjs
+
+  site:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: site
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Site build is committed and tests pass (offline gates, no install)
+        run: |
+          npm run build
+          git diff --exit-code -- .
+          npm test
