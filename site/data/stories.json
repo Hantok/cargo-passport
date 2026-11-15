@@ -306,7 +306,7 @@
     "premise": "Does stopping the airflow put out a fire in weightlessness?",
     "evidence_status": "partial",
     "status_reason": "Marked partly data: related investigations are linked below; the question itself is not covered in our sources.",
-    "state": "proposed",
+    "state": "published",
     "theme": "suppression",
     "basis": [
       {
@@ -392,7 +392,7 @@
     "premise": "Which uses on Earth have come from research into fire in space?",
     "evidence_status": "partial",
     "status_reason": "Marked partly data: related investigations are linked below; the question itself is not covered in our sources.",
-    "state": "proposed",
+    "state": "published",
     "theme": "earth",
     "basis": [
       {
@@ -453,9 +453,9 @@
     "id": "moon-gravity",
     "title": "What burns on the Moon?",
     "premise": "How does a flame behave at Moon or Mars gravity?",
-    "evidence_status": "hypothesis",
-    "status_reason": "No direct measurement is in our sources.",
-    "state": "proposed",
+    "evidence_status": "partial",
+    "status_reason": "Marked partly data: ground tests in simulated lunar gravity are linked below; nothing is measured on the Moon.",
+    "state": "published",
     "theme": "behaviour",
     "basis": [
       {

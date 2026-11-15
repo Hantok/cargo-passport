@@ -6,7 +6,7 @@ import { FIXTURES, REPO, listen, localEvidenceFile, removeDir, run, sourceServer
 
 const RUN = `${REPO}/tests/judge/run.mjs`;
 const SUPPORT_FILES = ['support-tea-pdf.json', 'support-tea-steep.json'];
-const COVERAGE_PAGES = ['index.html', 'vehicle/index.html', 'stories/index.html', ...['quiet-fire', 'moon-air', 'battery-orbit', 'cygnus-big-fires', 'round-flame', 'cool-flame', 'weightless-extinguish', 'smoke-alarm'].map((id) => `stories/${id}/index.html`)];
+const COVERAGE_PAGES = ['index.html', 'vehicle/index.html', 'stories/index.html', ...['quiet-fire', 'moon-air', 'battery-orbit', 'cygnus-big-fires', 'round-flame', 'cool-flame', 'weightless-extinguish', 'smoke-alarm', 'fans-off', 'moon-gravity', 'earth-spinoffs'].map((id) => `stories/${id}/index.html`)];
 const fileOf = (page) => `coverage-${page.replaceAll('/', '_').replace('.html', '')}.json`;
 const COVERAGE_FILES = COVERAGE_PAGES.map(fileOf).sort();
 
