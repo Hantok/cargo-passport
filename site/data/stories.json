@@ -100,7 +100,7 @@
     "premise": "What shape does a flame take without gravity, and why does it differ from a flame on Earth?",
     "evidence_status": "data",
     "status_reason": "Marked data: flight investigations are linked below.",
-    "state": "proposed",
+    "state": "published",
     "theme": "behaviour",
     "basis": [
       {
@@ -146,7 +146,7 @@
     "premise": "How does a flame go out when nothing lifts it away, and what helps it go out?",
     "evidence_status": "data",
     "status_reason": "Marked data: flight investigations are linked below.",
-    "state": "proposed",
+    "state": "published",
     "theme": "suppression",
     "basis": [
       {
@@ -220,7 +220,7 @@
     "premise": "What is a cool flame, and when does it start, survive or turn into a hot flame?",
     "evidence_status": "data",
     "status_reason": "Marked data: flight investigations are linked below.",
-    "state": "proposed",
+    "state": "published",
     "theme": "behaviour",
     "basis": [
       {
@@ -266,7 +266,7 @@
     "premise": "Does smoke move and look different without gravity, and do detectors still respond to it?",
     "evidence_status": "partial",
     "status_reason": "Marked partly data: related investigations are linked below; the question itself is not covered in our sources.",
-    "state": "proposed",
+    "state": "published",
     "theme": "detection",
     "basis": [
       {
