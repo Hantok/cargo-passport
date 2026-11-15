@@ -3,7 +3,7 @@
   html .btn, html .chip { min-height: 44px; justify-content: center; }
   html .chip { display: inline-flex; align-items: center; gap: 0.5em; }
   html .skip { min-height: 44px; display: inline-flex; align-items: center; }
-  html .brand { display: inline-flex; align-items: center; min-height: 44px; }
+  html .brand { display: inline-flex; align-items: center; gap: 0.6em; min-height: 44px; }
   html .fleet-air__opt { min-height: 44px; }
   html .fleet-air__opt span { display: inline-flex; align-items: center; min-height: 44px; }
   html .fleet-pill { min-height: 44px; padding-inline: 1rem; }
