@@ -126,7 +126,7 @@ export function passportBlock({ passport, evidence, cites, rules }) {
             <span class="eyebrow">Cargo Passport</span>
             <h3 id="pp-title" data-illustrative>${passport.name}</h3>
             <p class="pp-head__purpose" data-illustrative>${passport.purpose}</p>
-            <span class="tag tag--illustrative">Illustrative item</span>
+            <span class="beat__mark">Illustrative item</span>
           </div>
           ${controls(passport, state.vehicle, state.place)}
         </header>

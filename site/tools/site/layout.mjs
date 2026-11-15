@@ -5,8 +5,6 @@ import { html, raw } from './html.mjs';
 
 const REPO_URL = 'https://github.com/Hantok/cargo-passport';
 export const APP_URL = 'https://cargo.qwadratic.me';
-export const NEW_STORY_URL = `${REPO_URL}/issues/new?template=story-proposal.yml`;
-export const ISSUES_URL = `${REPO_URL}/issues`;
 export const repoFile = (path) => `${REPO_URL}/blob/HEAD/${path}`;
 const SI_DISCLOSURE =
   'The code, layout and first drafts of text of this site were produced with SI assistance. Every numbered sentence links to a verbatim quote from its source.';
@@ -15,7 +13,7 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vi
 
 const COSMOS = readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'cosmos.html'), 'utf8');
 const STYLES = ['tokens', 'base', 'cosmos', 'depth', 'components', 'library', 'story'];
-const SCRIPTS = ['depth', 'reveal', 'rail', 'figure-host', 'figure-controls', 'shelf-filter', 'evidence', 'library-votes'];
+const SCRIPTS = ['rail', 'figure-host', 'figure-controls', 'shelf-filter', 'evidence'];
 
 const footer = (base) => html`<footer class="foot">
   <div class="foot__inner">

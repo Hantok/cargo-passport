@@ -21,17 +21,17 @@ const STAGE = {
   fleet: 'The whole vehicle',
   watch: 'The watch',
   fits: 'Where it fits',
-  more: 'Explore more stories',
+  more: 'Other stories',
 };
 
 const MARKS = [
-  ['illustrative', 'Illustrative scenario', 'invented, not a record'],
-  ['concept', 'Concept', 'not built, written as what would happen'],
+  ['illustrative', 'Illustrative: invented, not a record.'],
+  ['concept', 'Concept: not built, written as what would happen.'],
 ];
 
 const tagsFor = (sentences) => {
   const present = MARKS.filter(([key]) => sentences.some((sentence) => sentence[key]));
-  return present.length ? html`<div class="beat__tags">${present.map(([key, label]) => html`<span class="tag tag--${key}">${label}</span>`)}</div>` : '';
+  return present.length ? html`<p class="beat__mark">${present.map(([, label]) => label).join(' ')}</p>` : '';
 };
 
 const paragraphsOf = (sentences) => {
@@ -48,13 +48,13 @@ const paragraphsOf = (sentences) => {
 
 const pullQuote = (id, evidence, cites) => {
   const record = evidence.get(id);
-  return html`<figure class="pull slab" data-reveal>
+  return html`<figure class="pull slab">
         <blockquote data-evidence="${id}">“${record.quote}”${cites.markers([id])}</blockquote>
         <figcaption data-computed="source title, organisation, year and link of evidence record ${id}, from data/evidence.json">${record.source_title}, ${record.source_org}, ${record.source_year}. <a href="${record.landing_url}" target="_blank" rel="noopener noreferrer">Open the source</a></figcaption>
       </figure>`;
 };
 
-const beatLink = (link) => (link ? html`<p class="beat__link" data-reveal><a class="btn" href="stories/${link.story}/">${link.text}</a></p>` : '');
+const beatLink = (link) => (link ? html`<p class="beat__link"><a class="btn" href="stories/${link.story}/">${link.text}</a></p>` : '');
 
 const fleetBlock = (mode, ctx) => {
   if (!fleet?.renderFleetStatic) {
@@ -66,24 +66,23 @@ const fleetBlock = (mode, ctx) => {
 };
 
 const interactiveBlock = (name, ctx) => {
-  if (name === 'passport') return html`<div class="beat__live" data-reveal>${passportBlock({ passport: ctx.site.passport, evidence: ctx.site.evidence, cites: ctx.cites, rules })}</div>`;
-  if (name === 'fleet') return html`<div class="beat__live" data-reveal>${fleetBlock('overview', ctx)}</div>`;
-  if (name === 'watch') return html`<div class="beat__live" data-reveal>${fleetBlock('scenario', ctx)}</div>`;
+  if (name === 'passport') return html`<div class="beat__live">${passportBlock({ passport: ctx.site.passport, evidence: ctx.site.evidence, cites: ctx.cites, rules })}</div>`;
+  if (name === 'fleet') return html`<div class="beat__live">${fleetBlock('overview', ctx)}</div>`;
+  if (name === 'watch') return html`<div class="beat__live">${fleetBlock('scenario', ctx)}</div>`;
   return '';
 };
 
 const beatScene = (beat, sentences, number, ctx) => html`<section class="scene scene--beat scene--home${beat.interactive ? ' scene--live' : ''}" id="beat-${beat.id}" aria-labelledby="beat-${beat.id}-title">
-    <div class="scene__inner beat${beat.interactive ? ' beat--wide' : ''}${number % 2 && !beat.interactive ? ' beat--flip' : ''}">
+    <div class="scene__inner beat${beat.interactive ? ' beat--wide' : ''}">
       <div class="beat__head">
-        <span class="numeral" data-depth="0.85" data-z="-90" data-drift="6" aria-hidden="true">${number}</span>
         <div class="beat__title">
-          <div data-reveal><span class="eyebrow">${number} · ${STAGE[beat.id] ?? beat.heading}</span></div>
-          <h2 id="beat-${beat.id}-title" data-reveal>${beat.heading}</h2>
+          <div><span class="eyebrow">${number} · ${STAGE[beat.id] ?? beat.heading}</span></div>
+          <h2 id="beat-${beat.id}-title">${beat.heading}</h2>
           ${tagsFor(sentences)}
         </div>
       </div>
       <div class="beat__text">
-        ${paragraphsOf(sentences).map((group) => html`<p class="prose" data-reveal>${group.map((sentence) => citedSentence(sentence, ctx.cites))}</p>`)}
+        ${paragraphsOf(sentences).map((group) => html`<p class="prose">${group.map((sentence) => citedSentence(sentence, ctx.cites))}</p>`)}
         ${beat.pull_quote ? pullQuote(beat.pull_quote.evidence, ctx.site.evidence, ctx.cites) : ''}
         ${beatLink(beat.link)}
       </div>
@@ -96,24 +95,16 @@ const openingScene = (story, beat, ctx) => {
   return html`<section class="scene" id="hook" aria-labelledby="hook-title">
     <div class="scene__inner hook">
       <div>
-        <div data-reveal><span class="eyebrow">Cargo Passport · Flame in Freefall</span></div>
-        <h1 id="hook-title" data-reveal>${story.title}</h1>
-        <p class="lead" data-reveal>${story.dek}</p>
-        <p class="hook__def" data-reveal><strong>A Cargo Passport</strong> is a record that travels with a cargo item: what it is made of, which fire-safety evidence applies to each material in the air it is going to, and what has no evidence. It flags; people decide.</p>
-        <p class="prose hook__open" data-reveal>${first.map((sentence) => citedSentence(sentence, ctx.cites))}</p>
-        <div data-reveal>${tagsFor(first)}</div>
-        <div class="actions" data-reveal>
-          <a class="btn btn--primary" href="#beat-passport">Try the passport</a>
-          <a class="btn" href="#library">Explore more stories</a>
+        <div><span class="eyebrow">Cargo Passport · Flame in Freefall</span></div>
+        <h1 id="hook-title">${story.title}</h1>
+        <p class="lead">${story.dek}</p>
+        <p class="hook__def"><strong>A Cargo Passport</strong> is a record that travels with a cargo item: what it is made of, which fire-safety evidence applies to each material in the air it is going to, and what has no evidence. It flags; people decide.</p>
+        <p class="prose hook__open">${first.map((sentence) => citedSentence(sentence, ctx.cites))}</p>
+        <div>${tagsFor(first)}</div>
+        <div class="actions">
+          <a class="btn btn--primary" href="#beat-passport">Open the passport</a>
+          <a class="btn" href="#library">Other stories</a>
         </div>
-        <ul class="marks small" data-reveal aria-label="What the marks on this page mean">
-          ${MARKS.map(([key, label, meaning]) => html`<li><span class="tag tag--${key}">${label}</span> ${meaning}</li>`)}
-        </ul>
-      </div>
-      <div class="hook__art" aria-hidden="true">
-        <div class="orb orb--far" data-depth="0.8" data-drift="14"></div>
-        <div class="orb orb--mid" data-depth="1.1" data-z="30" data-drift="10"></div>
-        <div class="orb orb--near" data-depth="1.45" data-z="60" data-drift="16"></div>
       </div>
     </div>
   </section>`;
@@ -122,7 +113,6 @@ const openingScene = (story, beat, ctx) => {
 const sourcesScene = (cites) => html`<section class="scene scene--short sources" id="sources" aria-labelledby="sources-title">
     <div class="scene__inner">
       <h2 id="sources-title">Sources</h2>
-      <p class="small">Each numbered marker on this page opens the passage it rests on.</p>
       ${sourceList(cites)}
     </div>
   </section>`;
@@ -149,8 +139,8 @@ export function homePage({ root, shelf, passport, stories, evidence, home }) {
     scenes.push(beatScene(beat, sentences, pad(number), ctx));
     railItems.push({ id: `beat-${beat.id}`, label: STAGE[beat.id] ?? beat.heading });
   }
-  const shelfHtml = libraryScene(shelf.filter((entry) => !entry.home), more ?? { heading: 'Explore more stories', sentences: [] }, pad(number + 1), cites, beatLink(more?.link));
-  railItems.push({ id: 'library', label: 'Explore more stories' }, { id: 'born', label: 'How a story is born' }, { id: 'honest', label: 'How we keep it honest' });
+  const shelfHtml = libraryScene(shelf.filter((entry) => !entry.home), more ?? { heading: 'Other stories', sentences: [] }, pad(number + 1), cites, beatLink(more?.link));
+  railItems.push({ id: 'library', label: 'Other stories' }, { id: 'born', label: 'How a story is born' }, { id: 'honest', label: 'How we keep it honest' });
   const born = bornScene(pad(number + 2));
   const honest = honestScene(citedCounts(stories, evidence), pad(number + 3));
   const limits = limitsScene(story, home.file ?? `content/stories/${home.id}.json`, 'What this page does not show');
@@ -161,7 +151,7 @@ export function homePage({ root, shelf, passport, stories, evidence, home }) {
     title: 'Cargo Passport · A record that travels with every cargo item',
     description: 'A Cargo Passport travels with a cargo item and lists which fire-safety evidence applies to each material in the air it is going to, and what has no evidence. People decide.',
     base: '',
-    top: { href: '#library', label: 'More stories' },
+    top: { href: '#library', label: 'Stories' },
     skipTo: 'hook',
     railItems,
     styles: ['passport', 'home', ...extras(root, 'css', ['fleet'])],

@@ -1,5 +1,4 @@
 import { html } from './html.mjs';
-import { ISSUES_URL } from './layout.mjs';
 
 export const STATUS = {
   data: { label: 'Data', meaning: 'Experiments answer the question.' },
@@ -18,11 +17,6 @@ const GLYPH = {
 export const statusMark = (status) => html`<span class="status status--${status}"><svg class="status__glyph" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true" focusable="false">${GLYPH[status]}</svg><span class="status__label">${STATUS[status].label}</span></span>`;
 
 export const stageTag = (state) => html`<span class="tag" data-stage>${STATE[state]}</span>`;
-
-export const voteControls = ({ title }) => html`<span class="votes__count"><span data-likes>–</span> likes</span>
-    <span class="votes__count"><span data-comments>–</span> comments</span>
-    <a class="btn btn--like" data-like href="${ISSUES_URL}" rel="noopener" aria-label="Like the story: ${title}">Like</a>
-    <a class="btn" data-discuss href="${ISSUES_URL}" rel="noopener" aria-label="Discuss the story: ${title}">Discuss</a>`;
 
 export const recordMark = (file, path) => `${file} ${path}, rendered unchanged`;
 

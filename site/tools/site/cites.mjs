@@ -27,7 +27,7 @@ export const sourceList = (cites) => html`<ol data-evidence-list data-computed="
 /** A sentence with its citations; illustrative and concept sentences are wrapped so the gates know they are not sourced facts. */
 export function citedSentence(sentence, cites) {
   let out = sentence.evidence.length
-    ? html`<span data-evidence="${sentence.evidence.join(' ')}">${sentence.text}${cites.markers(sentence.evidence)}</span>`
+    ? html`<span class="fact" data-evidence="${sentence.evidence.join(' ')}">${sentence.text}${cites.markers(sentence.evidence)}</span>`
     : html`${sentence.text}`;
   if (sentence.illustrative) out = html`<span data-illustrative>${out}</span>`;
   if (sentence.concept) out = html`<span data-concept>${out}</span>`;

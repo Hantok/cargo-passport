@@ -1,29 +1,25 @@
 @layer components {
-  /* marks: what is invented and what is not built */
-  :root { --illustrative: #e8c77d; --concept: #aaa4ff; }
-  .tag--illustrative { border-style: dashed; border-color: var(--illustrative); color: var(--illustrative); }
-  .tag--concept { border-color: var(--concept); background: rgb(170 164 255 / 0.1); color: var(--concept); }
-  .tag { font-family: var(--font); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
-  .beat__tags { display: flex; flex-wrap: wrap; gap: var(--space-1); margin-top: var(--space-2); }
-  span[data-concept] { text-decoration: underline dotted rgb(170 164 255 / 0.55); text-decoration-thickness: 1px; text-underline-offset: 0.3em; }
-  .marks { display: flex; flex-wrap: wrap; gap: 0.5rem var(--space-3); margin: var(--space-3) 0 0; padding: 0; list-style: none; }
-  .marks li { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0.2rem 0.6rem; color: var(--muted); }
+  /* marks: one quiet line, no badge */
+  .beat__mark { margin: var(--space-1) 0 0; font: 400 var(--fs-xs) / 1.5 var(--mono); letter-spacing: 0.02em; color: var(--muted); }
+  .tag { font-family: var(--mono); font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; }
+  .tag[data-stage] { padding: 0; border: 0; color: var(--muted); }
+  span[data-concept] { text-decoration: underline dotted rgb(197 208 224 / 0.5); text-decoration-thickness: 1px; text-underline-offset: 0.3em; }
   .hook__def { max-width: 36rem; margin-top: var(--space-3); color: var(--fg); font-size: var(--fs-md); }
   .hook__def strong { color: var(--accent); font-weight: 600; }
   .hook__open { margin-top: var(--space-3); }
 
   /* the story scenes of the home page */
-  .hook h1 { max-width: 9ch; }
-  .scene--home .beat__head h2 { max-width: 16ch; }
-  .beat--wide { grid-template-columns: minmax(0, 1fr); gap: var(--space-4); }
+  .hook h1 { max-width: 18ch; }
+  .scene--home .beat__head h2 { max-width: 24ch; }
+  .beat--wide { grid-template-columns: minmax(0, 1fr); gap: var(--space-3); }
   .beat--wide .beat__head { padding-bottom: 0; }
-  .beat--wide .beat__head h2 { max-width: 20ch; }
+  .beat--wide .beat__head h2 { max-width: 28ch; }
   .beat--wide .beat__title { position: static; }
   .beat--wide .beat__text { max-width: var(--measure); }
   .beat__live { min-width: 0; }
   .beat__link { margin-top: var(--space-3); }
   .scene--live { align-items: start; }
-  .figure-missing { display: grid; place-content: center; min-height: 12rem; border: 1px dashed var(--line); border-radius: var(--radius); text-align: center; font-family: var(--mono); letter-spacing: 0.08em; text-transform: uppercase; }
+  .figure-missing { display: grid; place-content: center; min-height: 12rem; border: 1px dashed var(--line); text-align: center; font-family: var(--mono); letter-spacing: 0.08em; text-transform: uppercase; }
   fleet-view { display: block; min-width: 0; }
   #honest .honest__marks { max-width: 46rem; margin-top: var(--space-2); }
 
@@ -36,5 +32,4 @@
   .limits__more summary { cursor: pointer; padding-block: 0.4rem; color: var(--accent); font-size: var(--fs-sm); }
 
   @media (max-width: 899px) { .hook h1 { max-width: none; } }
-  @media (max-width: 559px) { .marks { flex-direction: column; } .marks li { flex-wrap: nowrap; } }
 }

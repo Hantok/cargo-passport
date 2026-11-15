@@ -2,7 +2,7 @@ import { citedSentence, createCites, sourceList } from './cites.mjs';
 import { html } from './html.mjs';
 import { page } from './layout.mjs';
 import { BuildError } from './load.mjs';
-import { pad, recordMark, stageTag, statusMark, voteControls } from './parts.mjs';
+import { pad, recordMark, stageTag, statusMark } from './parts.mjs';
 
 const SENTENCES_PER_PARAGRAPH = 3;
 
@@ -33,7 +33,7 @@ export function paragraphs(sentences) {
 
 const pullQuote = (id, evidence, cites) => {
   const record = evidence.get(id);
-  return html`<figure class="pull slab" data-reveal>
+  return html`<figure class="pull slab">
         <blockquote data-evidence="${id}">“${record.quote}”${cites.markers([id])}</blockquote>
         <figcaption data-computed="source title, organisation, year and link of evidence record ${id}, from data/evidence.json">${record.source_title}, ${record.source_org}, ${record.source_year}. <a href="${record.landing_url}" target="_blank" rel="noopener noreferrer">Open the source</a></figcaption>
       </figure>`;
@@ -42,7 +42,7 @@ const pullQuote = (id, evidence, cites) => {
 const figureBlock = (name) => {
   if (!FIGURE_CONTROLS[name]) throw new BuildError([`a beat asks for figure "${name}", which tools/site/story-page.mjs has no controls for`]);
   const { label, ratio, buttons } = FIGURE_CONTROLS[name];
-  return html`<div class="beat__figure" data-reveal>
+  return html`<div class="beat__figure">
       <figure-host name="${name}" style="--figure-ratio: ${ratio}" role="group" aria-label="${label}"><noscript><p class="small">${label} needs JavaScript.</p></noscript></figure-host>
       <div class="figure-controls" data-figure-controls role="group" aria-label="Set the drawing" hidden>
         ${buttons.map(({ label: text, state }) => html`<button type="button" class="btn" aria-pressed="false" data-figure-state="${JSON.stringify(state)}">${text}</button>`)}
@@ -55,16 +55,15 @@ const beatScene = (beat, index, total, ctx) => {
   const { evidence, cites } = ctx;
   const figure = beat.figure ? figureBlock(beat.figure) : '';
   return html`<section class="scene scene--beat" id="beat-${beat.id}" aria-labelledby="beat-${beat.id}-title">
-    <div class="scene__inner beat${beat.figure ? ' beat--figure' : ''}${index % 2 && !beat.figure ? ' beat--flip' : ''}">
+    <div class="scene__inner beat${beat.figure ? ' beat--figure' : ''}">
       <div class="beat__head">
-        <span class="numeral" data-depth="0.85" data-z="-90" data-drift="6" aria-hidden="true">${pad(index + 1)}</span>
         <div class="beat__title">
-          <div data-reveal><span class="eyebrow">${pad(index + 1)} of ${pad(total)}</span></div>
-          <h2 id="beat-${beat.id}-title" data-reveal>${beat.heading}</h2>
+          <div><span class="eyebrow">${pad(index + 1)} of ${pad(total)}</span></div>
+          <h2 id="beat-${beat.id}-title">${beat.heading}</h2>
         </div>
       </div>
       <div class="beat__text">
-        ${paragraphs(beat.sentences).map((group) => html`<p class="prose" data-reveal>${group.map((sentence) => citedSentence(sentence, cites))}</p>`)}
+        ${paragraphs(beat.sentences).map((group) => html`<p class="prose">${group.map((sentence) => citedSentence(sentence, cites))}</p>`)}
         ${beat.pull_quote ? pullQuote(beat.pull_quote.evidence, evidence, cites) : ''}
       </div>
       ${figure}
@@ -78,7 +77,7 @@ const limitItem = (file, text, index) => html`<li data-computed="${recordMark(fi
 
 export const limitsScene = (story, file, heading = 'What this story does not show') => html`<section class="scene scene--short" id="limits" aria-labelledby="limits-title">
     <div class="scene__inner">
-      <div class="slab limits" data-reveal>
+      <div class="slab limits">
         <h2 id="limits-title">${heading}</h2>
         <ul>
           ${story.limits.slice(0, LIMITS_SHOWN).map((text, index) => limitItem(file, text, index))}
@@ -93,18 +92,17 @@ export const limitsScene = (story, file, heading = 'What this story does not sho
 
 const questionItem = (question, shelfById) => {
   const target = question.story ? shelfById.get(question.story) : null;
-  if (!target) return html`<li class="question slab" data-reveal><p>${question.text}</p></li>`;
-  return html`<li class="question slab" data-reveal data-story="${target.id}">
+  if (!target) return html`<li class="question slab"><p>${question.text}</p></li>`;
+  return html`<li class="question slab" data-story="${target.id}">
       <p>${question.text}</p>
       <p class="question__link"><a href="../../#story-${target.id}">${target.title}</a></p>
-      <div class="votes">${voteControls(target)}</div>
     </li>`;
 };
 
 const unknownScene = (story, shelfById) => html`<section class="scene scene--short" id="unknown" aria-labelledby="unknown-title">
     <div class="scene__inner">
-      <h2 id="unknown-title" data-reveal>What nobody knows yet</h2>
-      <p class="lead" data-reveal>Each question that names another story links to its card in the library. A like moves that story forward.</p>
+      <h2 id="unknown-title">What nobody knows yet</h2>
+      <p class="lead">Each question that names another story links to its card in the library.</p>
       <ul class="questions">
         ${story.open_questions.map((question) => questionItem(question, shelfById))}
       </ul>
@@ -113,14 +111,13 @@ const unknownScene = (story, shelfById) => html`<section class="scene scene--sho
 
 const headScene = (story, entry, file) => html`<section class="scene scene--title" id="story-top" aria-labelledby="story-title">
     <div class="scene__inner story-head">
-      <div data-reveal><span class="eyebrow">A story from the library</span></div>
-      <h1 id="story-title" data-reveal>${story.title}</h1>
-      <p class="lead" data-reveal>${story.dek}</p>
-      <div data-reveal>
+      <div><span class="eyebrow">A story from the library</span></div>
+      <h1 id="story-title">${story.title}</h1>
+      <p class="lead">${story.dek}</p>
+      <div>
         <div class="slab statusbox" data-story="${entry.id}">
           <div class="statusbox__row">${statusMark(story.status)}${stageTag(entry.state)}</div>
           <p data-computed="${recordMark(file, 'status_reason')}">${story.status_reason}</p>
-          <div class="votes">${voteControls(entry)}</div>
         </div>
       </div>
     </div>
@@ -151,7 +148,7 @@ export function storyPage({ story, entry, file, evidence, shelf }) {
     title: `${story.title} · Cargo Passport`,
     description: story.dek,
     base: '../../',
-    top: { href: '../../#library', label: 'More stories' },
+    top: { href: '../../#library', label: 'Stories' },
     skipTo: 'story-top',
     railItems,
     body: html`${headScene(story, entry, file)}

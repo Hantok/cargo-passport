@@ -172,8 +172,8 @@ describe('build-site output', () => {
 
   it('wraps each cited sentence in data-evidence and numbers sources in order of first use', () => {
     const page = buildPages(site()).find(({ path }) => path === 'stories/s/index.html').html;
-    assert.match(page, /<span data-evidence="a">First sentence\.<sup class="fn"><a href="#src-1">1<\/a><\/sup><\/span>/);
-    assert.match(page, /<span data-evidence="b a">Second sentence\.<sup class="fn"><a href="#src-2">2<\/a><\/sup><sup class="fn"><a href="#src-1">1<\/a><\/sup><\/span>/);
+    assert.match(page, /<span class="fact" data-evidence="a">First sentence\.<sup class="fn"><a href="#src-1">1<\/a><\/sup><\/span>/);
+    assert.match(page, /<span class="fact" data-evidence="b a">Second sentence\.<sup class="fn"><a href="#src-2">2<\/a><\/sup><sup class="fn"><a href="#src-1">1<\/a><\/sup><\/span>/);
     assert.match(page, / Plain sentence\. /);
     assert.equal([...page.matchAll(/<li id="src-\d+">/g)].length, 3);
     assert.ok(page.indexOf('id="src-3"') > page.indexOf('id="src-2"'));
@@ -191,7 +191,8 @@ describe('build-site output', () => {
     assert.deepEqual(written, ['index.html', 'stories/s/index.html']);
     const home = readFileSync(join(root, 'index.html'), 'utf8');
     for (const id of ['s', 't']) assert.ok(home.includes(`id="story-${id}" data-story="${id}"`), `no card for ${id}`);
-    assert.match(home, /Not written yet\. A like moves it forward\./);
+    assert.match(home, /Not written yet\./);
+    assert.ok(!/data-like|data-discuss|votes__count/.test(home), 'no likes or comments on the shelf');
   });
 
   it('is idempotent', () => {
@@ -258,22 +259,22 @@ describe('the home story', () => {
   it('wraps illustrative sentences in data-illustrative and tags the scene', () => {
     const page = homePageOf(site());
     assert.match(page, /<span data-illustrative>Opening one\.<\/span>/);
-    assert.match(page, /<span class="tag tag--illustrative">Illustrative scenario<\/span>/);
+    assert.match(page, /<p class="beat__mark">Illustrative: invented, not a record\.<\/p>/);
   });
 
   it('wraps concept sentences in data-concept and tags only the scenes that contain one', () => {
     const page = homePageOf(site());
     assert.match(page, /<span data-concept>Every item would be registered\.<\/span>/);
     const onboard = page.slice(page.indexOf('id="beat-onboard"'), page.indexOf('id="beat-passport"'));
-    assert.match(onboard, /<span class="tag tag--concept">Concept<\/span>/);
-    assert.ok(!onboard.includes('Illustrative scenario'));
+    assert.match(onboard, /<p class="beat__mark">Concept: not built, written as what would happen\.<\/p>/);
+    assert.ok(!onboard.includes('Illustrative:'));
     const passport = page.slice(page.indexOf('id="beat-passport"'), page.indexOf('id="beat-fleet"'));
-    assert.ok(!passport.includes('class="tag tag--concept"'));
+    assert.ok(!passport.includes('Concept: not built'));
   });
 
   it('keeps a sentence that is both illustrative and cited inside both wrappers', () => {
     const both = withBeat('without', { sentences: [{ text: 'Both.', evidence: ['a'], illustrative: true }, { text: 'Two.', evidence: [] }, { text: 'Three.', evidence: [] }] });
-    assert.match(homePageOf(site({ home: both })), /<span data-illustrative><span data-evidence="a">Both\.<sup class="fn">/);
+    assert.match(homePageOf(site({ home: both })), /<span data-illustrative><span class="fact" data-evidence="a">Both\.<sup class="fn">/);
   });
 
   it('fails when a beat names an interactive that does not exist', () => {

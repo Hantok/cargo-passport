@@ -1,7 +1,7 @@
-// Numbered citations. Every element with data-evidence="id1 id2" gets one marker per id that opens a
-// ui-sdk popover with the verbatim quote and where it came from; <ol data-evidence-list> gets the source list.
-// The generated pages already carry plain footnotes (sup.fn) and the same source list, so they read without
-// JavaScript or ui-sdk. story.css hides the footnotes only once ui-sdk has upgraded a popover.
+// Facts backed by evidence. Every element with data-evidence="id1 id2" is marked as a fact (class "fact", an
+// accent underline). Hover, focus or tap shows a tooltip with the verbatim quote, the source and a link to the
+// original web page; <ol data-evidence-list> gets the source list. The generated pages already carry plain
+// footnote numbers (sup.fn) and the same source list, so they read without JavaScript.
 
 const EVIDENCE_URL = new URL("../../data/evidence.json", import.meta.url);
 
@@ -30,36 +30,6 @@ function link(href, text) {
   return h("a", { href, target: "_blank", rel: "noopener noreferrer" }, text);
 }
 
-function citation(number, record) {
-  const trigger = h(
-    "button",
-    { type: "button", className: "cite", textContent: String(number) },
-  );
-  trigger.setAttribute("aria-label", `Source ${number}: ${record.source_title}`);
-
-  const content = h(
-    "ui-popover-content",
-    { className: "cite-pop" },
-    h("ui-popover-title", {}, `Source ${number}`),
-    h("blockquote", {}, record.quote),
-    h("p", { className: "cite-src" }, record.source_title),
-    h("p", {}, `${record.source_org}, ${record.source_year}`),
-    h(
-      "div",
-      { className: "row" },
-      link(record.landing_url, "Open the source"),
-      h("ui-popover-close", {}, h("button", { type: "button", className: "close" }, "Close")),
-    ),
-    h("dl", {}, ...row("Where", record.locator), ...row("Limits", record.limits), ...row("Conditions", record.conditions)),
-  );
-  content.hidden = true;
-  content.setAttribute("side", "top");
-  content.setAttribute("side-offset", "10");
-  content.setAttribute("collision-padding", "12");
-
-  return h("ui-popover", {}, h("ui-popover-trigger", {}, trigger), content);
-}
-
 function sourceItem(number, record) {
   const item = h(
     "li",
@@ -72,11 +42,124 @@ function sourceItem(number, record) {
   return item;
 }
 
+const tip = {
+  node: null,
+  owner: null,
+  timer: 0,
+  records: null,
+  numbers: null,
+};
+
+function tipBody(element) {
+  const ids = element.dataset.evidence.split(/\s+/).filter((id) => tip.records.has(id));
+  return ids.map((id) => {
+    const record = tip.records.get(id);
+    const where = [`${record.source_org}, ${record.source_year}`, record.locator].filter(Boolean).join(" · ");
+    const links = h("p", { className: "fact-tip__links" }, link(record.landing_url, "Open the source"));
+    if (record.doc_url) links.append(" · ", link(record.doc_url, "Document"));
+    return h(
+      "div",
+      { className: "fact-tip__item" },
+      h("blockquote", {}, record.quote),
+      h("p", { className: "fact-tip__src" }, `${tip.numbers.has(id) ? `${tip.numbers.get(id)}. ` : ""}${record.source_title}`),
+      h("p", { className: "fact-tip__where" }, where),
+      links,
+    );
+  });
+}
+
+function placeTip(element, point) {
+  const node = tip.node;
+  const rects = [...element.getClientRects()];
+  const rect = (point && rects.find((r) => point.y >= r.top - 4 && point.y <= r.bottom + 4)) || rects[0] || element.getBoundingClientRect();
+  const margin = 8;
+  node.style.left = "0px";
+  node.style.top = "0px";
+  const { width, height } = node.getBoundingClientRect();
+  const left = Math.min(Math.max(margin, (point ? point.x : rect.left) - 24), Math.max(margin, innerWidth - width - margin));
+  const below = rect.bottom + 6;
+  const top = below + height + margin > innerHeight && rect.top - height - 6 > margin ? rect.top - height - 6 : below;
+  node.style.left = `${left}px`;
+  node.style.top = `${Math.max(margin, top)}px`;
+}
+
+function showTip(element, point) {
+  if (!tip.records) return;
+  clearTimeout(tip.timer);
+  if (!tip.node) {
+    tip.node = h("div", { className: "fact-tip", role: "tooltip", id: "fact-tip" });
+    tip.node.hidden = true;
+    tip.node.addEventListener("pointerenter", () => clearTimeout(tip.timer));
+    tip.node.addEventListener("pointerleave", () => hideTip(250));
+    document.body.append(tip.node);
+  }
+  if (tip.owner !== element) {
+    tip.node.replaceChildren(...tipBody(element));
+    tip.owner?.removeAttribute("aria-describedby");
+    element.setAttribute("aria-describedby", "fact-tip");
+    tip.owner = element;
+  }
+  tip.node.hidden = false;
+  placeTip(element, point);
+}
+
+function hideTip(delay = 0) {
+  clearTimeout(tip.timer);
+  tip.timer = setTimeout(() => {
+    if (!tip.node) return;
+    tip.node.hidden = true;
+    tip.owner?.removeAttribute("aria-describedby");
+    tip.owner = null;
+  }, delay);
+}
+
+function wireTips() {
+  const fact = (event) => event.target.closest?.(".fact");
+  const point = (event) => ({ x: event.clientX, y: event.clientY });
+  document.addEventListener("pointerover", (event) => {
+    const el = fact(event);
+    if (el && event.pointerType === "mouse") showTip(el, point(event));
+  });
+  document.addEventListener("pointerout", (event) => {
+    const el = fact(event);
+    if (el && event.pointerType === "mouse" && !el.contains(event.relatedTarget)) hideTip(250);
+  });
+  document.addEventListener("click", (event) => {
+    const el = fact(event);
+    if (el && event.target.closest("a") && !event.target.closest("sup.fn")) return;
+    if (!el) {
+      if (!event.target.closest?.(".fact-tip")) hideTip();
+      return;
+    }
+    if (event.target.closest("sup.fn")) event.preventDefault();
+    if (tip.owner === el && tip.node && !tip.node.hidden && event.pointerType !== "mouse" && event.detail !== 0) hideTip();
+    else showTip(el, point(event));
+  });
+  document.addEventListener("focusin", (event) => {
+    const el = fact(event);
+    if (el?.matches(":focus-visible")) showTip(el, null);
+  });
+  document.addEventListener("focusout", (event) => {
+    if (fact(event)) hideTip(150);
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") hideTip();
+  });
+  addEventListener("scroll", () => hideTip(), { passive: true });
+  addEventListener("resize", () => hideTip());
+}
+
 function markMissing(element, id) {
   element.append(" ", h("span", { className: "cite cite--pending", title: "data/evidence.json" }, `[source missing: ${id}]`));
 }
 
-const ready = loadEvidence().then((records) => ({ records, numbers: new Map(), list: document.querySelector("[data-evidence-list]") }));
+const ready = loadEvidence().then((records) => {
+  const state = { records, numbers: new Map(), list: document.querySelector("[data-evidence-list]") };
+  tip.records = records;
+  tip.numbers = state.numbers;
+  if (records) wireTips();
+  return state;
+});
 
 function decorate({ records, numbers, list }, element) {
   for (const id of element.dataset.evidence.split(/\s+/).filter(Boolean)) {
@@ -89,7 +172,12 @@ function decorate({ records, numbers, list }, element) {
       numbers.set(id, numbers.size + 1);
       list?.append(sourceItem(numbers.get(id), record));
     }
-    element.append(citation(numbers.get(id), record));
+  }
+  element.classList.add("fact");
+  if (!element.matches("a, button, [tabindex]")) element.tabIndex = 0;
+  if (!element.querySelector(":scope > sup.fn")) {
+    const ids = element.dataset.evidence.split(/\s+/).filter((id) => numbers.has(id));
+    element.append(...ids.map((id) => h("sup", { className: "fn" }, h("a", { href: `#src-${numbers.get(id)}` }, String(numbers.get(id))))));
   }
 }
 

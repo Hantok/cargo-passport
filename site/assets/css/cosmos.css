@@ -1,50 +1,15 @@
 @layer depth {
-  /* Tiles for the far star field and the mid dust, drawn once as SVG. */
+  /* Tiles for the sparse star field, drawn once as SVG. */
   :root {
     --stars-far-a: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='900' height='900' viewBox='0 0 900 900'><circle cx='37.7' cy='274.2' r='0.5' fill='%23ffffff' fill-opacity='1'/><circle cx='418.1' cy='89.2' r='0.9' fill='%23dbe6f5' fill-opacity='0.8'/><circle cx='337.3' cy='95.3' r='0.5' fill='%23ffd3a6' fill-opacity='0.4'/><circle cx='406.7' cy='275.3' r='0.9' fill='%23ffd3a6' fill-opacity='0.9'/><circle cx='819.7' cy='870.1' r='0.8' fill='%23dbe6f5' fill-opacity='0.5'/><circle cx='677.2' cy='851.6' r='0.6' fill='%23dbe6f5' fill-opacity='0.5'/><circle cx='100.7' cy='685.1' r='0.5' fill='%23ffd3a6' fill-opacity='0.6'/><circle cx='78.8' cy='615.1' r='0.7' fill='%23ffd3a6' fill-opacity='0.9'/><circle cx='702.5' cy='349.7' r='0.9' fill='%23ffd3a6' fill-opacity='0.7'/><circle cx='325.3' cy='381.5' r='0.9' fill='%23ffffff' fill-opacity='1'/><circle cx='735.4' cy='248.5' r='0.6' fill='%23ffd3a6' fill-opacity='0.8'/><circle cx='585.9' cy='360.1' r='0.5' fill='%23dbe6f5' fill-opacity='0.4'/><circle cx='618.3' cy='301.3' r='0.6' fill='%23ffffff' fill-opacity='0.6'/><circle cx='674.6' cy='873.4' r='0.7' fill='%23dbe6f5' fill-opacity='0.8'/><circle cx='353.1' cy='145.5' r='0.5' fill='%23dbe6f5' fill-opacity='0.6'/><circle cx='529.5' cy='50.1' r='0.8' fill='%23ffffff' fill-opacity='0.5'/><circle cx='407.6' cy='885' r='0.6' fill='%23dbe6f5' fill-opacity='0.9'/><circle cx='637.1' cy='547.5' r='0.7' fill='%23ffffff' fill-opacity='0.4'/><circle cx='865.6' cy='551.4' r='1.1' fill='%23dbe6f5' fill-opacity='0.9'/><circle cx='889.1' cy='480.5' r='1' fill='%23ffffff' fill-opacity='0.8'/><circle cx='451' cy='536' r='1' fill='%23ffd3a6' fill-opacity='1'/><circle cx='129.7' cy='769.6' r='0.6' fill='%23dbe6f5' fill-opacity='0.4'/><circle cx='367.7' cy='295.7' r='0.8' fill='%23dbe6f5' fill-opacity='1'/><circle cx='556' cy='850.7' r='0.5' fill='%23ffd3a6' fill-opacity='0.8'/><circle cx='781.8' cy='259.4' r='0.8' fill='%23ffffff' fill-opacity='0.8'/><circle cx='437' cy='153.1' r='0.6' fill='%23dbe6f5' fill-opacity='0.5'/><circle cx='360.5' cy='174.2' r='0.7' fill='%23ffffff' fill-opacity='0.5'/><circle cx='416.2' cy='523.3' r='0.5' fill='%23ffffff' fill-opacity='1'/><circle cx='729.9' cy='887.6' r='0.5' fill='%23ffffff' fill-opacity='0.4'/><circle cx='23.9' cy='182.7' r='0.9' fill='%23dbe6f5' fill-opacity='0.6'/><circle cx='379.2' cy='470' r='0.6' fill='%23ffffff' fill-opacity='0.7'/><circle cx='643.2' cy='247.4' r='0.9' fill='%23ffffff' fill-opacity='0.8'/><circle cx='574.6' cy='796.6' r='0.7' fill='%23ffd3a6' fill-opacity='0.9'/><circle cx='721.9' cy='323.7' r='0.7' fill='%23ffd3a6' fill-opacity='0.4'/><circle cx='514.3' cy='737.6' r='0.8' fill='%23ffd3a6' fill-opacity='0.9'/><circle cx='381.6' cy='720' r='0.8' fill='%23ffffff' fill-opacity='1'/><circle cx='606.2' cy='899' r='0.8' fill='%23dbe6f5' fill-opacity='0.8'/><circle cx='731.8' cy='406.2' r='0.9' fill='%23ffffff' fill-opacity='0.4'/><circle cx='140.5' cy='236.1' r='0.5' fill='%23ffffff' fill-opacity='0.7'/><circle cx='230.4' cy='190' r='1' fill='%23ffd3a6' fill-opacity='0.4'/><circle cx='425.5' cy='561.6' r='0.9' fill='%23ffffff' fill-opacity='0.6'/><circle cx='614.1' cy='398.2' r='0.6' fill='%23ffffff' fill-opacity='0.9'/><circle cx='291.5' cy='317.4' r='0.8' fill='%23ffd3a6' fill-opacity='0.5'/><circle cx='58.4' cy='228.4' r='0.6' fill='%23ffffff' fill-opacity='0.6'/><circle cx='629.7' cy='716.8' r='0.8' fill='%23ffffff' fill-opacity='0.4'/><circle cx='62.2' cy='505.6' r='0.6' fill='%23ffd3a6' fill-opacity='0.4'/><circle cx='246.4' cy='402.6' r='1.1' fill='%23ffd3a6' fill-opacity='0.4'/><circle cx='209.3' cy='219.3' r='0.7' fill='%23ffffff' fill-opacity='0.9'/><circle cx='264.1' cy='62.6' r='0.7' fill='%23ffd3a6' fill-opacity='0.4'/><circle cx='379.3' cy='265.7' r='1.1' fill='%23ffffff' fill-opacity='0.5'/><circle cx='715.2' cy='104.9' r='0.5' fill='%23dbe6f5' fill-opacity='0.5'/><circle cx='879.8' cy='45.3' r='0.6' fill='%23ffffff' fill-opacity='0.7'/><circle cx='739.5' cy='172.4' r='0.9' fill='%23ffd3a6' fill-opacity='0.5'/><circle cx='803.3' cy='19.8' r='0.9' fill='%23ffd3a6' fill-opacity='0.4'/><circle cx='138.3' cy='481.8' r='0.5' fill='%23ffffff' fill-opacity='0.7'/><circle cx='78.3' cy='70.9' r='0.9' fill='%23dbe6f5' fill-opacity='0.4'/><circle cx='141.7' cy='459.8' r='0.6' fill='%23ffffff' fill-opacity='0.5'/><circle cx='451.1' cy='282.6' r='0.7' fill='%23dbe6f5' fill-opacity='0.4'/><circle cx='538.5' cy='323.2' r='0.6' fill='%23ffffff' fill-opacity='0.9'/><circle cx='696.4' cy='350.2' r='0.5' fill='%23ffffff' fill-opacity='0.7'/><circle cx='786.4' cy='168.3' r='0.6' fill='%23dbe6f5' fill-opacity='0.4'/><circle cx='776.3' cy='144.4' r='0.8' fill='%23ffffff' fill-opacity='0.4'/><circle cx='890.5' cy='710' r='0.5' fill='%23dbe6f5' fill-opacity='0.7'/><circle cx='552.7' cy='309.2' r='0.6' fill='%23ffffff' fill-opacity='0.4'/><circle cx='893.7' cy='481.1' r='0.8' fill='%23ffd3a6' fill-opacity='0.7'/><circle cx='62' cy='571.7' r='0.5' fill='%23ffd3a6' fill-opacity='0.4'/><circle cx='295.6' cy='700' r='0.7' fill='%23ffffff' fill-opacity='0.6'/><circle cx='689.3' cy='380.9' r='0.6' fill='%23ffffff' fill-opacity='0.4'/><circle cx='885.9' cy='72' r='0.5' fill='%23ffffff' fill-opacity='0.9'/><circle cx='493.2' cy='695.7' r='0.5' fill='%23dbe6f5' fill-opacity='0.6'/></svg>");
     --stars-far-b: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='1310' height='1310' viewBox='0 0 1310 1310'><circle cx='258.3' cy='762' r='0.5' fill='%23ffffff' fill-opacity='0.8'/><circle cx='1209.8' cy='136.2' r='0.7' fill='%23ffffff' fill-opacity='0.9'/><circle cx='194.7' cy='207.3' r='0.7' fill='%23ffffff' fill-opacity='0.4'/><circle cx='1280.2' cy='875.1' r='1.1' fill='%23ffd3a6' fill-opacity='1'/><circle cx='488.2' cy='141.8' r='1' fill='%23ffd3a6' fill-opacity='0.4'/><circle cx='931.2' cy='1222' r='0.8' fill='%23ffffff' fill-opacity='0.5'/><circle cx='1023.4' cy='166.8' r='1.1' fill='%23dbe6f5' fill-opacity='0.9'/><circle cx='760.7' cy='82.2' r='0.7' fill='%23dbe6f5' fill-opacity='0.9'/><circle cx='178.4' cy='1004.8' r='0.7' fill='%23dbe6f5' fill-opacity='0.5'/><circle cx='609.7' cy='255.4' r='1.1' fill='%23ffd3a6' fill-opacity='0.4'/><circle cx='988.2' cy='693.1' r='1' fill='%23ffd3a6' fill-opacity='0.7'/><circle cx='509.8' cy='1232.6' r='0.6' fill='%23ffffff' fill-opacity='0.6'/><circle cx='51.1' cy='1013.4' r='0.6' fill='%23ffffff' fill-opacity='0.5'/><circle cx='809.1' cy='1063.7' r='0.5' fill='%23dbe6f5' fill-opacity='0.3'/><circle cx='535.6' cy='1014.9' r='0.5' fill='%23ffffff' fill-opacity='0.6'/><circle cx='379.4' cy='1168.1' r='0.5' fill='%23ffffff' fill-opacity='0.9'/><circle cx='186.4' cy='144.5' r='0.8' fill='%23ffd3a6' fill-opacity='0.9'/><circle cx='154.8' cy='475.2' r='1' fill='%23ffffff' fill-opacity='0.7'/><circle cx='1173.4' cy='239.3' r='0.9' fill='%23ffffff' fill-opacity='0.7'/><circle cx='1235.4' cy='339.8' r='1.2' fill='%23ffffff' fill-opacity='0.4'/><circle cx='1304.7' cy='783.7' r='0.5' fill='%23ffffff' fill-opacity='1'/><circle cx='806.4' cy='480.5' r='0.6' fill='%23ffffff' fill-opacity='0.4'/><circle cx='470.3' cy='585.8' r='1.1' fill='%23ffffff' fill-opacity='0.6'/><circle cx='1176.9' cy='452.3' r='0.7' fill='%23ffffff' fill-opacity='0.5'/><circle cx='1143.7' cy='1025' r='0.5' fill='%23ffffff' fill-opacity='0.4'/><circle cx='443.8' cy='288.6' r='0.7' fill='%23dbe6f5' fill-opacity='0.6'/><circle cx='785.8' cy='1134' r='0.5' fill='%23ffffff' fill-opacity='0.7'/><circle cx='630.4' cy='231.6' r='0.8' fill='%23ffd3a6' fill-opacity='0.8'/><circle cx='31.3' cy='763.6' r='0.5' fill='%23ffd3a6' fill-opacity='0.8'/><circle cx='1161.1' cy='559.8' r='1' fill='%23dbe6f5' fill-opacity='0.9'/><circle cx='147.7' cy='1182.8' r='0.5' fill='%23dbe6f5' fill-opacity='0.6'/><circle cx='373.2' cy='798.4' r='0.7' fill='%23ffd3a6' fill-opacity='0.4'/><circle cx='1266.3' cy='1201.1' r='0.9' fill='%23dbe6f5' fill-opacity='0.6'/><circle cx='492.6' cy='18.9' r='0.6' fill='%23ffffff' fill-opacity='0.7'/><circle cx='831.1' cy='1205.9' r='0.5' fill='%23dbe6f5' fill-opacity='0.4'/><circle cx='447.5' cy='1018.7' r='0.5' fill='%23ffffff' fill-opacity='0.6'/><circle cx='104.6' cy='972.6' r='0.5' fill='%23ffffff' fill-opacity='0.9'/><circle cx='862.1' cy='355.3' r='0.6' fill='%23ffffff' fill-opacity='0.7'/><circle cx='780.7' cy='195.5' r='0.7' fill='%23ffd3a6' fill-opacity='0.9'/><circle cx='397.8' cy='209.4' r='0.5' fill='%23ffffff' fill-opacity='0.8'/><circle cx='15.8' cy='299.8' r='0.6' fill='%23dbe6f5' fill-opacity='0.4'/><circle cx='714.4' cy='270.3' r='0.5' fill='%23ffffff' fill-opacity='0.3'/><circle cx='155.9' cy='304.9' r='0.6' fill='%23ffffff' fill-opacity='0.9'/><circle cx='275.7' cy='1012.8' r='0.5' fill='%23ffd3a6' fill-opacity='0.7'/><circle cx='883.6' cy='8.2' r='0.8' fill='%23ffd3a6' fill-opacity='0.6'/><circle cx='343.4' cy='471.5' r='0.5' fill='%23ffffff' fill-opacity='0.6'/></svg>");
-    --stars-near-a: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='1130' height='1130' viewBox='0 0 1130 1130'><defs><radialGradient id='w'><stop offset='0' stop-color='white' stop-opacity='.95'/><stop offset='.35' stop-color='white' stop-opacity='.45'/><stop offset='1' stop-color='white' stop-opacity='0'/></radialGradient><radialGradient id='o'><stop offset='0' stop-color='%23ffd3a6' stop-opacity='.9'/><stop offset='.35' stop-color='%23ffd3a6' stop-opacity='.4'/><stop offset='1' stop-color='%23ffd3a6' stop-opacity='0'/></radialGradient></defs><circle cx='607' cy='853.6' r='3.8' fill='url(%23w)'/><circle cx='670.3' cy='293.2' r='3.9' fill='url(%23w)'/><circle cx='386' cy='945.4' r='3.4' fill='url(%23w)'/><circle cx='757.9' cy='800.7' r='2.2' fill='url(%23w)'/><circle cx='564.4' cy='971.5' r='2.8' fill='url(%23w)'/><circle cx='624.5' cy='746.5' r='4.2' fill='url(%23o)'/><circle cx='1029.7' cy='624' r='4.4' fill='url(%23o)'/><circle cx='679.5' cy='189.3' r='2.3' fill='url(%23w)'/><circle cx='428.1' cy='369' r='2.5' fill='url(%23w)'/><circle cx='533.2' cy='628.2' r='5.4' fill='url(%23w)'/><circle cx='645.4' cy='276' r='2.4' fill='url(%23o)'/><circle cx='84.5' cy='403.1' r='2.3' fill='url(%23o)'/><circle cx='997.2' cy='1078.4' r='2.6' fill='url(%23w)'/><circle cx='829.4' cy='1048.6' r='3.1' fill='url(%23w)'/><circle cx='37.3' cy='96.1' r='2.1' fill='url(%23w)'/><circle cx='870.9' cy='503.2' r='2.2' fill='url(%23w)'/><circle cx='17.4' cy='992.4' r='2.1' fill='url(%23o)'/><circle cx='1069.1' cy='94.2' r='4.8' fill='url(%23o)'/><circle cx='1100.2' cy='134.3' r='2.6' fill='url(%23w)'/><circle cx='533.3' cy='321.2' r='5.4' fill='url(%23w)'/><circle cx='134.7' cy='760' r='3.2' fill='url(%23w)'/><circle cx='794.2' cy='900.7' r='3.2' fill='url(%23w)'/><circle cx='750.5' cy='891.4' r='4.2' fill='url(%23o)'/><circle cx='824.7' cy='13.4' r='3.8' fill='url(%23w)'/><circle cx='320.5' cy='892.5' r='2.4' fill='url(%23o)'/><circle cx='1076.2' cy='892' r='2.1' fill='url(%23o)'/></svg>");
-    --dust-a: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='1000' viewBox='0 0 1000 1000'><defs><radialGradient id='g'><stop offset='0' stop-color='%23ffd3a6' stop-opacity='.55'/><stop offset='1' stop-color='%23ffd3a6' stop-opacity='0'/></radialGradient><radialGradient id='b'><stop offset='0' stop-color='%234fb3ff' stop-opacity='.4'/><stop offset='1' stop-color='%234fb3ff' stop-opacity='0'/></radialGradient></defs><circle cx='212.9' cy='764.9' r='11.1' fill='url(%23g)'/><circle cx='835.1' cy='153.1' r='7' fill='url(%23b)'/><circle cx='830.6' cy='339.6' r='12.5' fill='url(%23g)'/><circle cx='449.7' cy='377.1' r='12' fill='url(%23g)'/><circle cx='272.8' cy='742.9' r='14.7' fill='url(%23b)'/><circle cx='572.5' cy='386.7' r='7.2' fill='url(%23b)'/><circle cx='770.3' cy='510.3' r='11.8' fill='url(%23b)'/><circle cx='378.2' cy='156.6' r='9.4' fill='url(%23g)'/><circle cx='66.8' cy='936.8' r='13.2' fill='url(%23b)'/><circle cx='750.1' cy='472.7' r='14.4' fill='url(%23g)'/><circle cx='826.8' cy='383.7' r='15.1' fill='url(%23g)'/><circle cx='970.4' cy='895.2' r='5.4' fill='url(%23g)'/><circle cx='106.7' cy='397.6' r='8.4' fill='url(%23b)'/><circle cx='471.5' cy='533.7' r='9.9' fill='url(%23g)'/><circle cx='887.4' cy='642.2' r='12.7' fill='url(%23b)'/><circle cx='650.9' cy='635.7' r='5.4' fill='url(%23g)'/></svg>");
-    --dust-b: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='1400' height='1400' viewBox='0 0 1400 1400'><defs><radialGradient id='g'><stop offset='0' stop-color='%23ffd3a6' stop-opacity='.55'/><stop offset='1' stop-color='%23ffd3a6' stop-opacity='0'/></radialGradient><radialGradient id='b'><stop offset='0' stop-color='%234fb3ff' stop-opacity='.4'/><stop offset='1' stop-color='%234fb3ff' stop-opacity='0'/></radialGradient></defs><circle cx='939.1' cy='898.9' r='25.5' fill='url(%23b)'/><circle cx='1047' cy='1380.6' r='29.6' fill='url(%23b)'/><circle cx='192' cy='476' r='25.7' fill='url(%23g)'/><circle cx='1095.9' cy='169.6' r='25.4' fill='url(%23g)'/><circle cx='1213.1' cy='651.5' r='22.3' fill='url(%23g)'/><circle cx='783.6' cy='494' r='20.9' fill='url(%23b)'/><circle cx='169.9' cy='1002.7' r='28.3' fill='url(%23g)'/><circle cx='1022.1' cy='850.5' r='25.3' fill='url(%23b)'/><circle cx='970' cy='1054.7' r='28.8' fill='url(%23g)'/><circle cx='1288.3' cy='106.1' r='19.1' fill='url(%23g)'/></svg>");
   }
 
-  /* Fixed volumes behind (.cosmos) and in front of (.cosmos-front) the content plane.
-     depth.js moves every [data-depth] child by its own amount. */
-  .cosmos, .cosmos-front { position: fixed; inset: 0; pointer-events: none; overflow: clip; }
-  .cosmos { z-index: -1; }
-  .cosmos-front { z-index: 4; visibility: hidden; }
-  .depth-live .cosmos-front { visibility: visible; }
-  .layer, .fg { position: absolute; will-change: transform; }
+  /* One fixed backdrop behind the content: sparse stars and a thin-line orbit diagram. */
+  .cosmos { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: clip; }
+  .layer { position: absolute; }
+  .layer--stars-far { inset: 0; background-image: var(--stars-far-a), var(--stars-far-b); opacity: 0.55; }
 
-  /* Depth of field is drawn into the tiles (sharp far stars, soft near ones), not applied as a filter,
-     so the large moving layers stay cheap to composite. Looping layers are one tile taller than the screen. */
-  .layer--stars-far {
-    inset: -10vh -6vw -25vh;
-    background-image: var(--stars-far-a), var(--stars-far-b);
-  }
-  .layer--stars-near {
-    inset: -10vh -6vw -1130px;
-    background-image: var(--stars-near-a);
-    opacity: 0.85;
-  }
-  .layer--glow {
-    inset: -20vh -10vw;
-    background:
-      radial-gradient(42vmax 32vmax at 78% 18%, rgb(255 140 26 / 0.16), transparent 70%),
-      radial-gradient(50vmax 40vmax at 14% 62%, rgb(79 179 255 / 0.12), transparent 72%);
-  }
-  .layer--dust {
-    inset: -10vh -6vw -1000px;
-    background-image: var(--dust-a);
-    opacity: 0.7;
-  }
-  .layer--dust-far {
-    inset: -10vh -6vw -1400px;
-    background-image: var(--dust-b);
-    opacity: 0.4;
-  }
-
-  /* The only frame of reference: a planet limb and thin orbit arcs. */
   .planet {
     --planet-w: max(150vw, 1100px);
     position: absolute;
@@ -53,36 +18,11 @@
     width: var(--planet-w);
     aspect-ratio: 1;
     translate: -50% 0;
-    will-change: transform;
   }
-  .planet svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; will-change: transform; }
-  .planet .orbit { fill: none; stroke: var(--muted); stroke-opacity: 0.22; stroke-width: 1; vector-effect: non-scaling-stroke; }
-  .planet .orbit--dash { stroke-dasharray: 3 9; stroke-opacity: 0.3; }
-  .planet .ticks { fill: none; stroke: var(--muted); stroke-opacity: 0.4; stroke-width: 6; vector-effect: non-scaling-stroke; }
-  .planet .ticks--minor { stroke-width: 1.5; stroke-opacity: 0.3; }
-  .planet .craft { fill: var(--accent); }
-
-  /* Large out-of-focus objects close to the camera: soft by construction, no filter. */
-  .fg { opacity: 0.22; }
-  .fg--ring {
-    left: -6vw; top: 52%; width: clamp(150px, 20vw, 300px); aspect-ratio: 1; border-radius: 50%;
-    background: radial-gradient(closest-side, transparent 52%, rgb(255 140 26 / 0.9) 70%, transparent 100%);
-  }
-  .fg--panel {
-    right: -4vw; top: 38%; width: clamp(130px, 17vw, 260px); aspect-ratio: 1.3; border-radius: 40%;
-    background: radial-gradient(closest-side, rgb(79 179 255 / 0.9), transparent 100%);
-  }
-  .fg--bolt {
-    left: 9vw; top: 44%; width: clamp(60px, 8vw, 120px); aspect-ratio: 1; border-radius: 50%;
-    background: radial-gradient(closest-side, rgb(255 211 166 / 0.9) 30%, transparent 100%);
-  }
-  .fg--rod {
-    right: 8vw; top: 46%; width: clamp(30px, 3.4vw, 54px); height: clamp(200px, 30vw, 440px); border-radius: 50%;
-    background: radial-gradient(closest-side, rgb(255 140 26 / 0.8), transparent 100%); rotate: 24deg;
-  }
-
-  @media (max-width: 700px) {
-    .layer--dust-far, .fg--panel, .fg--bolt { display: none; }
-    .fg { opacity: 0.16; }
-  }
+  .planet svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  .planet .limb { fill: var(--bg); stroke: var(--muted); stroke-opacity: 0.5; stroke-width: 1; vector-effect: non-scaling-stroke; }
+  .planet .orbit { fill: none; stroke: var(--muted); stroke-opacity: 0.16; stroke-width: 1; vector-effect: non-scaling-stroke; }
+  .planet .orbit--dash { stroke-dasharray: 3 9; stroke-opacity: 0.22; }
+  .planet .ticks { fill: none; stroke: var(--muted); stroke-opacity: 0.3; stroke-width: 6; vector-effect: non-scaling-stroke; }
+  .planet .ticks--minor { stroke-width: 1.5; stroke-opacity: 0.25; }
 }

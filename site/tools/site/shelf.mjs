@@ -1,14 +1,12 @@
 import { citedSentence } from './cites.mjs';
 import { html } from './html.mjs';
-import { NEW_STORY_URL, repoFile } from './layout.mjs';
-import { STATUS, recordMark, stageTag, statusMark, voteControls } from './parts.mjs';
+import { repoFile } from './layout.mjs';
+import { STATUS, recordMark, stageTag, statusMark } from './parts.mjs';
 
 const DATA_FILE = 'data/stories.json';
 const FILTERS = ['data', 'partial', 'hypothesis'];
 const BORN_STEPS = [
-  ['Propose', 'Anyone opens a story proposal on GitHub: one question about fire and weightlessness.'],
-  ['Like', 'Readers like the directions they want to read. Each like is a public vote.'],
-  ['Collect evidence', 'A direction with a like gets its evidence: short quotes from NASA records and papers.'],
+  ['Collect evidence', 'A direction gets its evidence: short quotes from NASA records and papers.'],
   ['Pass the gates', 'Every quote is checked against its source before the text is accepted.'],
   ['Publish', 'The story joins the shelf with its evidence status and what it leaves open.'],
 ];
@@ -41,10 +39,10 @@ const gapsBlock = (entry) => (entry.gaps.length
 
 const cardAction = (entry) => (entry.state === 'published'
   ? html`<a class="btn btn--primary" href="stories/${entry.id}/">Read the story</a>`
-  : html`<p class="card__note small">Not written yet. A like moves it forward.</p>`);
+  : html`<p class="card__note small">Not written yet.</p>`);
 
-const storyCard = (entry, index) => html`<li class="shelf__item" data-reveal data-status="${entry.evidence_status}">
-      <article class="card slab" id="story-${entry.id}" data-story="${entry.id}" data-status="${entry.evidence_status}" data-state="${entry.state}" data-depth="${index % 2 ? '0.98' : '1.03'}">
+const storyCard = (entry, index) => html`<li class="shelf__item" data-status="${entry.evidence_status}">
+      <article class="card slab" id="story-${entry.id}" data-story="${entry.id}" data-status="${entry.evidence_status}" data-state="${entry.state}">
         <div class="card__top">${statusMark(entry.evidence_status)}${stageTag(entry.state)}</div>
         <h3>${entry.state === 'published' ? html`<a href="stories/${entry.id}/">${entry.title}</a>` : entry.title}</h3>
         <p class="card__premise" data-computed="${recordMark(DATA_FILE, `${entry.id} premise`)}">${entry.premise}</p>
@@ -52,7 +50,6 @@ const storyCard = (entry, index) => html`<li class="shelf__item" data-reveal dat
         ${basisBlock(entry)}
         ${gapsBlock(entry)}
         <div class="card__foot">
-          <div class="votes">${voteControls(entry)}</div>
           ${cardAction(entry)}
         </div>
       </article>
@@ -66,22 +63,16 @@ const filterBar = (shelf) => {
       </div>`;
 };
 
-const legend = html`<ul class="legend" data-reveal aria-label="What the evidence statuses mean">
-        ${FILTERS.map((key) => html`<li class="legend__item">${statusMark(key)}<p>${STATUS[key].meaning}</p></li>`)}
-      </ul>`;
-
 /** The shelf of the other stories. `beat` is the "more" beat of the home story: its heading and sentences open the scene. */
 export const libraryScene = (shelf, beat, index, cites, link) => html`<section class="scene" id="library" aria-labelledby="library-title">
     <div class="scene__inner">
       <div class="scene__head">
-        <span class="numeral" data-depth="0.85" data-z="-90" data-drift="6" aria-hidden="true">${index}</span>
-        <div data-reveal><span class="eyebrow">${index} · Explore more stories</span></div>
-        <h2 id="library-title" data-reveal>${beat.heading}</h2>
-        <p class="lead" data-reveal>${beat.sentences.map((sentence) => citedSentence(sentence, cites))}</p>
+        <div><span class="eyebrow">${index} · Other stories</span></div>
+        <h2 id="library-title">${beat.heading}</h2>
+        <p class="lead">${beat.sentences.map((sentence) => citedSentence(sentence, cites))}</p>
         ${link}
       </div>
-      ${legend}
-      <div data-reveal>${filterBar(shelf)}</div>
+      <div>${filterBar(shelf)}</div>
       <ul class="shelf" data-shelf>
         ${shelf.map(storyCard)}
       </ul>
@@ -93,16 +84,13 @@ export const libraryScene = (shelf, beat, index, cites, link) => html`<section c
 export const bornScene = (index) => html`<section class="scene scene--short" id="born" aria-labelledby="born-title">
     <div class="scene__inner">
       <div class="scene__head">
-        <span class="numeral" data-depth="0.85" data-z="-90" data-drift="6" aria-hidden="true">${index}</span>
-        <div data-reveal><span class="eyebrow">The method</span></div>
-        <h2 id="born-title" data-reveal>How a story is born</h2>
-        <p class="lead" data-reveal>A direction is developed only if it has at least one like.</p>
+        <div><span class="eyebrow">The method</span></div>
+        <h2 id="born-title">How a story is born</h2>
       </div>
       <ol class="steps">
-        ${BORN_STEPS.map(([name, text], index) => html`<li class="step slab" data-reveal><span class="step__n mono" aria-hidden="true">${index + 1}</span><h3>${name}</h3><p class="small">${text}</p></li>`)}
+        ${BORN_STEPS.map(([name, text], index) => html`<li class="step slab"><span class="step__n mono" aria-hidden="true">${index + 1}</span><h3>${name}</h3><p class="small">${text}</p></li>`)}
       </ol>
-      <div class="actions" data-reveal>
-        <a class="btn btn--primary" href="${NEW_STORY_URL}" rel="noopener">Propose a story</a>
+      <div class="actions">
         <a class="btn" href="${repoFile('docs/how-stories-grow.md')}" rel="noopener">How stories grow</a>
       </div>
     </div>
@@ -111,16 +99,14 @@ export const bornScene = (index) => html`<section class="scene scene--short" id=
 export const honestScene = (counts, index) => html`<section class="scene scene--short" id="honest" aria-labelledby="honest-title">
     <div class="scene__inner">
       <div class="scene__head">
-        <span class="numeral" data-depth="0.85" data-z="-90" data-drift="6" aria-hidden="true">${index}</span>
-        <div data-reveal><span class="eyebrow">The gates</span></div>
-        <h2 id="honest-title" data-reveal>How we keep it honest</h2>
+        <div><span class="eyebrow">The gates</span></div>
+        <h2 id="honest-title">How we keep it honest</h2>
       </div>
       <ol class="gates">
-        ${HONEST_LINES.map((line) => html`<li class="gate" data-reveal>${line}</li>`)}
+        ${HONEST_LINES.map((line) => html`<li class="gate">${line}</li>`)}
       </ol>
-      <p class="lead" data-reveal>Today the published stories cite <strong data-computed="distinct evidence ids cited in content/stories/*.json">${counts.claims}</strong> claims from <strong data-computed="distinct source documents (doc_url) among those records in data/evidence.json">${counts.sources}</strong> sources.</p>
-      <p class="small honest__marks" data-reveal>Text marked Illustrative describes an invented item. Text marked Concept describes something that is not built. Neither is offered as evidence.</p>
-      <div class="actions" data-reveal><a class="btn" href="${repoFile('docs/evidence-method.md')}" rel="noopener">Read the evidence method</a></div>
+      <p class="lead">Today the published stories cite <strong data-computed="distinct evidence ids cited in content/stories/*.json">${counts.claims}</strong> claims from <strong data-computed="distinct source documents (doc_url) among those records in data/evidence.json">${counts.sources}</strong> sources.</p>
+      <div class="actions"><a class="btn" href="${repoFile('docs/evidence-method.md')}" rel="noopener">Read the evidence method</a></div>
     </div>
   </section>`;
 

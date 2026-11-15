@@ -283,7 +283,7 @@ export function overviewCard(entry, ctx) {
       <span class="fleet-card__letter" aria-hidden="true">${esc(entry.letter)}</span>
       <div><h3 id="fleet-card-title" data-illustrative>${esc(item.name)}</h3>
       <p class="fleet-card__purpose small" data-illustrative>${esc(item.purpose)}</p></div>
-      <span class="fleet-tagline" data-illustrative>Illustrative item</span>
+      <span class="beat__mark" data-illustrative>Illustrative item</span>
     </header>`;
   if (!entry.registered) {
     return `<article class="fleet-card" data-state="none" aria-labelledby="fleet-card-title">${head}
@@ -355,7 +355,6 @@ export function renderOverview(state, ctx) {
   const plan = planSvg({ fleet, layout: ctx.layout ?? 'wide', uid: ctx.uid ?? 'o', tags, litPlaces: lit, waiting: model.counts.waiting > 0, caption: 'Plan of one habitat module seen from above, with its cargo tags. Concept.' });
   return `<div class="fleet" data-mode="overview" data-vehicle="${esc(state.vehicle)}">
   <div class="fleet-bar">
-    <span class="fleet-concept" data-concept>Concept</span>
     ${airControl(passport, state.vehicle)}
     ${countsLine(model.counts)}
   </div>
@@ -425,7 +424,6 @@ export function renderScenario(stepIndex, ctx) {
   const stepList = model.steps.map((s, index) => `<li><button type="button" class="fleet-step" data-step="${index}" data-actor="${s.step.actor}"${index === model.current ? ' aria-current="step"' : ''}><span class="fleet-step__label">${esc(s.step.label)}</span><span class="fleet-step__who small">${esc(s.step.actor)}</span></button></li>`).join('');
   return `<div class="fleet" data-mode="scenario" data-vehicle="${esc(fleet.scenario.vehicle)}" data-step="${model.current}" data-state="${state}">
   <div class="fleet-bar">
-    <span class="fleet-concept" data-concept>Concept</span>
     <p class="fleet-air fleet-air--fixed"><span class="fleet-air__k">Air</span> ${esc(model.vehicle.label)}</p>
     <p class="fleet-count">Step <span data-computed="index of the current step in data/fleet.json">${model.current + 1}</span> of <span data-computed="number of steps in data/fleet.json">${model.steps.length}</span></p>
   </div>

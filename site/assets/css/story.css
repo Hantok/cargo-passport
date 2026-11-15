@@ -1,24 +1,23 @@
 @layer components {
   .prose { max-width: var(--measure); font-size: clamp(1.0625rem, 0.3vw + 1rem, 1.25rem); line-height: 1.75; color: rgb(255 255 255 / 0.94); }
   .prose + .prose { margin-top: 1.1em; }
-  .fn { margin-left: 0.1rem; font: 700 0.65rem / 1 var(--mono); vertical-align: super; }
+  .fn { margin-left: 0.1rem; font: 500 0.65rem / 1 var(--mono); vertical-align: super; }
+  .fn a { color: var(--muted); }
   .fn a { padding: 0 0.1rem; text-decoration: none; }
-  ui-popover:not(:defined) { display: none; }
-  html:has(ui-popover:defined) .fn { display: none; }
 
   /* title scene of a story */
-  .scene--title { min-height: 92svh; padding-top: calc(var(--space-6) + 2rem); }
-  .story-head h1 { max-width: 14ch; font-size: clamp(2.75rem, 8.2vw, 7rem); line-height: 0.98; }
+  .scene--title { padding-top: var(--space-5); }
+  .story-head h1 { max-width: 20ch; font-size: var(--fs-h1); line-height: 1.06; }
   .story-head .lead { max-width: 36rem; }
   .statusbox { display: grid; gap: var(--space-2); max-width: 40rem; margin-top: var(--space-5); padding: var(--space-3); }
   .statusbox__row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
   .statusbox p { color: var(--soft); }
 
   /* a beat is a small volume: heading far, text on the plane, figure near */
-  .scene--beat { min-height: min(86svh, 56rem); padding-block: calc(var(--numeral-h) + var(--space-4)) var(--space-5); }
+  .scene--beat { padding-block: var(--space-5); }
   .beat { display: grid; grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.22fr); gap: var(--space-5); align-items: stretch; }
-  .beat__head { position: relative; padding-top: 3rem; }
-  .beat__head h2 { font-size: clamp(2rem, 4.2vw, 3.5rem); max-width: 12ch; }
+  .beat__head { position: relative; }
+  .beat__head h2 { font-size: var(--fs-h2); max-width: 16ch; }
   .beat--flip { grid-template-columns: minmax(0, 1.22fr) minmax(0, 0.78fr); }
   .beat--flip .beat__head { order: 2; }
   .beat--figure { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
@@ -32,12 +31,11 @@
   @media (max-width: 899px) {
     .beat, .beat--flip, .beat--figure { grid-template-columns: 1fr; gap: var(--space-3); }
     .beat--flip .beat__head { order: 0; }
-    .beat__head { padding-top: 0; }
-    .scene--beat { min-height: 0; }
+    }
   }
 
-  .pull { margin: var(--space-4) 0 0; padding: var(--space-3) var(--space-3) var(--space-3) var(--space-4); border-left: 2px solid var(--accent); }
-  .pull blockquote { font-size: var(--fs-h3); font-weight: 300; line-height: 1.3; letter-spacing: var(--track-tight); color: var(--fg); }
+  .pull { margin: var(--space-4) 0 0; padding: var(--space-2) var(--space-3); border: 0; border-left: 2px solid var(--accent); background: none; }
+  .pull blockquote { font-size: var(--fs-lg); font-weight: 400; line-height: 1.3; letter-spacing: var(--track-tight); color: var(--fg); }
   .pull figcaption { margin-top: var(--space-2); font-size: var(--fs-sm); color: var(--muted); }
 
   .beat__figure { display: grid; gap: var(--space-2); }
@@ -49,20 +47,16 @@
 
   .limits { padding: var(--space-4); }
   @media (max-width: 759px) { .limits { padding: var(--space-3); } }
-  .limits h2 { font-size: var(--fs-h3); color: var(--soft); }
+  .limits h2 { font-size: var(--fs-h3); color: var(--fg); }
   .limits ul { margin: var(--space-3) 0 0; padding: 0; list-style: none; columns: 2 22rem; column-gap: var(--space-5); }
   .limits li { break-inside: avoid; padding: 0.8rem 0 0.8rem 1.6rem; border-top: 1px dashed var(--line); position: relative; color: var(--soft); }
   .limits li::before { content: ""; position: absolute; left: 0; top: 1.35rem; width: 0.7rem; border-top: 1.5px solid var(--gap); }
 
   .questions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); margin: var(--space-4) 0 0; padding: 0; list-style: none; }
   .question { display: grid; align-content: start; gap: var(--space-2); padding: var(--space-3); }
-  .question > p:first-child { font-size: var(--fs-lg); line-height: 1.3; color: var(--fg); }
+  .question > p:first-child { font-size: var(--fs-md); line-height: 1.3; color: var(--fg); }
   .question__link { font-size: var(--fs-sm); }
   @media (max-width: 759px) { .questions { grid-template-columns: 1fr; } }
 
-  .scene--short + .scene--short { padding-top: calc(var(--numeral-h) + var(--space-3)); }
 
-  @media (prefers-reduced-motion: reduce) {
-    .chip, .card summary::before { transition: none; }
-  }
 }
